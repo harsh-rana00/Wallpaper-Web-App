@@ -4,7 +4,8 @@ import WallpaperTab from './components/WallpaperTab';
 import AccountTab from './components/AccountTab';
 import SettingsModal from './components/SettingsModal';
 import Hive from './services/hive';
-import { DatabaseIcon } from './components/Icons';
+import { DatabaseIcon, SearchIcon, HeartIcon, SettingsIcon, SunIcon, MoonIcon, FilterIcon } from './components/Icons';
+
 
 export default function App() {
   // Database boxes
@@ -226,42 +227,48 @@ export default function App() {
       <header className="navbar-header">
         <div className="navbar-container">
           
-          <div className="navbar-brand">
-            <span className="logo-icon"></span>
-            <h1 className="logo-text font-display">AeroHub</h1>
+          {/* Left Section: Logo + Tab Switcher */}
+          <div className="navbar-left-group">
+            <div className="navbar-brand" onClick={() => { setActiveTab('wallpapers'); setSearchQuery(''); setShowFavoritesOnly(false); }}>
+              <div className="logo-icon-wrapper">
+                <span className="logo-icon-layer layer-1"></span>
+                <span className="logo-icon-layer layer-2"></span>
+              </div>
+              <h1 className="logo-text font-display">AeroHub</h1>
+            </div>
+
+            {/* Module Tab Switcher */}
+            <div className="tab-switcher">
+              <button
+                className={`tab-btn ${activeTab === 'wallpapers' ? 'active' : ''}`}
+                onClick={() => setActiveTab('wallpapers')}
+              >
+                Wallpapers
+              </button>
+              <button
+                className={`tab-btn ${activeTab === 'account' ? 'active' : ''}`}
+                onClick={() => setActiveTab('account')}
+              >
+                My Account
+              </button>
+            </div>
           </div>
 
-          {/* Module Tab Switcher */}
-          <div className="tab-switcher" style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', padding: '3px', borderRadius: 'var(--radius-full)' }}>
-            <button
-              className={`tab-btn ${activeTab === 'wallpapers' ? 'active' : ''}`}
-              onClick={() => setActiveTab('wallpapers')}
-            >
-              Wallpapers
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'account' ? 'active' : ''}`}
-              onClick={() => setActiveTab('account')}
-            >
-              My Account
-            </button>
-          </div>
-
-          {/* Right quick Actions controls */}
-          <div className="navbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Right Section: Actions */}
+          <div className="navbar-right-group">
             {/* Search Input (Wallpapers only) */}
             {activeTab === 'wallpapers' && (
-              <div className="search-pill" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <div className="search-pill-container">
+                <SearchIcon className="search-pill-icon" size={16} />
                 <input
                   type="text"
-                  className="search-input"
+                  className="search-pill-input"
                   placeholder="Search wallpapers..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ background: 'rgba(0,0,0,0.15)', border: '1px solid var(--glass-border)', padding: '10px 18px', borderRadius: 'var(--radius-full)', color: 'var(--text-primary)', fontSize: '0.9rem', width: '200px', outline: 'none' }}
                 />
                 {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: '10px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '1rem' }}>&times;</button>
+                  <button className="search-pill-clear" onClick={() => setSearchQuery('')}>&times;</button>
                 )}
               </div>
             )}
@@ -269,52 +276,46 @@ export default function App() {
             {/* Categories Toggler (Wallpapers only) */}
             {activeTab === 'wallpapers' && !showFavoritesOnly && (
               <button
-                className="btn btn-secondary nav-categories-btn"
+                className={`btn-categories-pill ${isCategoriesOpen ? 'active' : ''}`}
                 onClick={() => setIsCategoriesOpen(prev => !prev)}
-                style={{
-                  background: isCategoriesOpen ? 'linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%)' : 'rgba(0,0,0,0.15)',
-                  border: '1px solid var(--glass-border)',
-                  color: isCategoriesOpen ? '#ffffff' : 'var(--text-primary)',
-                  padding: '10px 20px',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
               >
+                <FilterIcon size={15} />
                 <span>Categories</span>
-                <span style={{ transition: 'transform 0.2s ease', transform: isCategoriesOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '0.75rem' }}>▾</span>
+                <span className="arrow-down">▾</span>
               </button>
             )}
 
             {/* Favorites Heart (Wallpapers only) */}
             {activeTab === 'wallpapers' && (
               <button 
-                className={`action-btn-circle-nav ${showFavoritesOnly ? 'active' : ''}`}
+                className={`action-btn-pill heart-btn ${showFavoritesOnly ? 'active' : ''}`}
                 onClick={() => setShowFavoritesOnly(prev => !prev)}
                 title={showFavoritesOnly ? "Show Feed" : "Show Favorites"}
               >
-                ❤️ {favorites.length > 0 && <span className="nav-badge">{favorites.length}</span>}
+                <HeartIcon size={18} fill={showFavoritesOnly ? 'var(--accent-pink)' : 'none'} />
+                {favorites.length > 0 && <span className="nav-badge-glow">{favorites.length}</span>}
               </button>
             )}
 
             {/* Dark/Light Switcher */}
-            <button className="action-btn-circle-nav" onClick={handleToggleTheme} title="Switch Theme">
-              {theme === 'dark' ? '☀️' : '🌙'}
+            <button className="action-btn-pill theme-btn" onClick={handleToggleTheme} title="Switch Theme">
+              {theme === 'dark' ? <SunIcon size={18} /> : <MoonIcon size={18} />}
             </button>
 
             {/* Settings Trigger */}
-            <button className="action-btn-circle-nav" onClick={() => setIsSettingsOpen(true)} title="API settings">
-              ⚙️
+            <button className="action-btn-pill settings-btn" onClick={() => setIsSettingsOpen(true)} title="API settings">
+              <SettingsIcon size={18} />
             </button>
 
-            {/* Profile Action button */}
-            <div className="user-profile-badge" onClick={handleLogout} title="Click to log out">
-              <span>{currentUser.username}</span>
-              <span className="profile-sign-out">Logout</span>
+            {/* Profile Action button / Avatar chip */}
+            <div className="profile-chip" onClick={handleLogout} title="Click to log out">
+              <div className="profile-avatar gradient-bg">
+                {currentUser.username.substring(0, 1).toUpperCase()}
+              </div>
+              <div className="profile-info">
+                <span className="profile-username">{currentUser.username}</span>
+                <span className="profile-action-text">Logout</span>
+              </div>
             </div>
           </div>
 
@@ -375,26 +376,205 @@ export default function App() {
       <div className="accent-bg glow-purple" style={{ position: 'fixed', bottom: '-10%', right: '-10%', width: '40vw', height: '40vw', background: 'var(--accent-cyan)', filter: 'blur(140px)', opacity: 0.04, pointerEvents: 'none', zIndex: -1 }}></div>
 
       <style dangerouslySetInnerHTML={{ __html: `
+        .navbar-left-group {
+          display: flex;
+          align-items: center;
+          gap: 28px;
+        }
+        .navbar-right-group {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .navbar-brand {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          cursor: pointer;
+          user-select: none;
+          transition: transform 0.2s ease;
+        }
+        .logo-icon-wrapper {
+          width: 34px;
+          height: 34px;
+          position: relative;
+          flex-shrink: 0;
+        }
+        .logo-icon-layer {
+          position: absolute;
+          inset: 0;
+          border-radius: var(--radius-sm);
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .logo-icon-layer.layer-1 {
+          background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
+          z-index: 2;
+          box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
+        }
+        .logo-icon-layer.layer-2 {
+          background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
+          z-index: 1;
+          transform: rotate(8deg) translate(2px, 2px) scale(0.95);
+          opacity: 0.6;
+        }
+        .navbar-brand:hover .logo-icon-layer.layer-1 {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 8px 16px rgba(139, 92, 246, 0.35);
+        }
+        .navbar-brand:hover .logo-icon-layer.layer-2 {
+          transform: rotate(-8deg) translate(-2px, 2px) scale(0.95);
+          opacity: 0.9;
+        }
+        .logo-text {
+          transition: filter 0.3s ease;
+        }
+        .navbar-brand:hover .logo-text {
+          filter: brightness(1.15);
+        }
+
+        .tab-switcher {
+          display: flex;
+          background: rgba(0, 0, 0, 0.22);
+          border: 1px solid var(--glass-border);
+          padding: 4px;
+          border-radius: var(--radius-full);
+          box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
+        }
+        [data-theme='light'] .tab-switcher {
+          background: rgba(0, 0, 0, 0.05);
+        }
         .tab-btn {
-          padding: 10px 22px;
+          padding: 8px 18px;
           border: none;
           background: transparent;
           color: var(--text-secondary);
           font-family: var(--font-display);
           font-weight: 600;
-          font-size: 0.92rem;
+          font-size: 0.88rem;
           cursor: pointer;
           border-radius: var(--radius-full);
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          user-select: none;
+        }
+        .tab-btn:hover {
+          color: var(--text-primary);
         }
         .tab-btn.active {
           background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%);
           color: white;
-          box-shadow: var(--neon-purple-shadow);
+          box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
         }
-        .action-btn-circle-nav {
-          width: 44px;
-          height: 44px;
+
+        .search-pill-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .search-pill-icon {
+          position: absolute;
+          left: 14px;
+          color: var(--text-muted);
+          pointer-events: none;
+          transition: color 0.3s ease;
+        }
+        .search-pill-input {
+          background: rgba(0, 0, 0, 0.15);
+          border: 1px solid var(--glass-border);
+          padding: 8px 16px 8px 36px;
+          border-radius: var(--radius-full);
+          color: var(--text-primary);
+          font-family: var(--font-body);
+          font-size: 0.86rem;
+          width: 170px;
+          outline: none;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        [data-theme='light'] .search-pill-input {
+          background: rgba(0, 0, 0, 0.04);
+        }
+        .search-pill-input:focus {
+          width: 210px;
+          background: rgba(0, 0, 0, 0.3);
+          border-color: var(--accent-purple);
+          box-shadow: 0 0 12px rgba(139, 92, 246, 0.1);
+        }
+        [data-theme='light'] .search-pill-input:focus {
+          background: rgba(255, 255, 255, 0.95);
+          box-shadow: 0 0 12px rgba(139, 92, 246, 0.06);
+        }
+        .search-pill-input:focus + .search-pill-icon {
+          color: var(--accent-purple);
+        }
+        .search-pill-clear {
+          position: absolute;
+          right: 12px;
+          background: none;
+          border: none;
+          color: var(--text-muted);
+          cursor: pointer;
+          font-size: 1.1rem;
+          line-height: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2px;
+          border-radius: 50%;
+          width: 18px;
+          height: 18px;
+          transition: all 0.2s ease;
+        }
+        .search-pill-clear:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: var(--text-primary);
+        }
+        [data-theme='light'] .search-pill-clear:hover {
+          background: rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-categories-pill {
+          background: rgba(0,0,0,0.15);
+          border: 1px solid var(--glass-border);
+          color: var(--text-primary);
+          padding: 8px 16px;
+          border-radius: var(--radius-full);
+          font-family: var(--font-body);
+          font-size: 0.86rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          user-select: none;
+        }
+        [data-theme='light'] .btn-categories-pill {
+          background: rgba(0,0,0,0.04);
+        }
+        .btn-categories-pill:hover {
+          background: rgba(255, 255, 255, 0.06);
+          border-color: var(--glass-border-hover);
+        }
+        [data-theme='light'] .btn-categories-pill:hover {
+          background: rgba(0,0,0,0.06);
+        }
+        .btn-categories-pill.active {
+          background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%);
+          border-color: transparent;
+          color: #ffffff;
+          box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+        .btn-categories-pill .arrow-down {
+          font-size: 0.75rem;
+          transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-categories-pill.active .arrow-down {
+          transform: rotate(180deg);
+        }
+
+        .action-btn-pill {
+          width: 38px;
+          height: 38px;
           border-radius: 50%;
           border: 1px solid var(--glass-border);
           background: rgba(255,255,255,0.03);
@@ -403,21 +583,46 @@ export default function App() {
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative;
-          font-size: 0.95rem;
         }
-        .action-btn-circle-nav:hover {
+        [data-theme='light'] .action-btn-pill {
+          background: rgba(0,0,0,0.02);
+          border-color: rgba(0, 0, 0, 0.06);
+        }
+        .action-btn-pill:hover {
           background: rgba(255,255,255,0.08);
           color: var(--text-primary);
           border-color: var(--glass-border-hover);
+          transform: translateY(-1px);
         }
-        .action-btn-circle-nav.active {
-          background: rgba(236,72,153,0.1);
-          border-color: var(--accent-pink);
+        [data-theme='light'] .action-btn-pill:hover {
+          background: rgba(0,0,0,0.05);
+        }
+        
+        .action-btn-pill.heart-btn:hover {
+          border-color: rgba(236, 72, 153, 0.5);
+          box-shadow: 0 0 10px rgba(236, 72, 153, 0.2);
           color: var(--accent-pink);
         }
-        .nav-badge {
+        .action-btn-pill.heart-btn.active {
+          background: rgba(236,72,153,0.08);
+          border-color: var(--accent-pink);
+          color: var(--accent-pink);
+          box-shadow: 0 0 12px rgba(236, 72, 153, 0.25);
+        }
+        .action-btn-pill.theme-btn:hover {
+          border-color: rgba(6, 182, 212, 0.5);
+          box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+          color: var(--accent-cyan);
+        }
+        .action-btn-pill.settings-btn:hover {
+          border-color: rgba(139, 92, 246, 0.5);
+          box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+          color: var(--accent-purple);
+        }
+
+        .nav-badge-glow {
           position: absolute;
           top: -3px;
           right: -3px;
@@ -431,35 +636,119 @@ export default function App() {
           display: flex;
           align-items: center;
           justify-content: center;
+          box-shadow: 0 0 6px var(--accent-pink);
+          animation: badgePulse 2s infinite;
         }
-        .user-profile-badge {
+
+        @keyframes badgePulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.6);
+          }
+          70% {
+            box-shadow: 0 0 0 6px rgba(236, 72, 153, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(236, 72, 153, 0);
+          }
+        }
+
+        .profile-chip {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          background: rgba(0, 0, 0, 0.15);
+          border: 1px solid var(--glass-border);
+          padding: 4px 12px 4px 4px;
+          border-radius: var(--radius-full);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          user-select: none;
+        }
+        [data-theme='light'] .profile-chip {
+          background: rgba(0,0,0,0.03);
+        }
+        .profile-chip:hover {
+          border-color: rgba(239, 68, 68, 0.5);
+          background: rgba(239, 68, 68, 0.05);
+          box-shadow: 0 0 10px rgba(239, 68, 68, 0.08);
+        }
+        .profile-avatar {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-family: var(--font-display);
+          font-weight: 700;
+          font-size: 0.8rem;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+          transition: transform 0.3s ease;
+        }
+        .profile-chip:hover .profile-avatar {
+          transform: scale(1.05);
+        }
+        .profile-info {
           display: flex;
           flex-direction: column;
-          align-items: flex-end;
-          cursor: pointer;
-          background: rgba(0,0,0,0.15);
-          border: 1px solid var(--glass-border);
-          padding: 6px 14px;
-          border-radius: var(--radius-sm);
-          font-size: 0.8rem;
+          align-items: flex-start;
+          line-height: 1.1;
+        }
+        .profile-username {
+          font-size: 0.78rem;
           font-weight: 600;
           color: var(--text-primary);
-          transition: all 0.2s ease;
+          transition: color 0.3s ease;
         }
-        [data-theme='light'] .user-profile-badge {
-          background: rgba(255,255,255,0.8);
-        }
-        .user-profile-badge:hover {
-          border-color: var(--accent-purple);
-        }
-        .profile-sign-out {
-          font-size: 0.65rem;
+        .profile-action-text {
+          font-size: 0.6rem;
           color: var(--text-muted);
-          margin-top: 1px;
+          transition: color 0.3s ease;
         }
-        .user-profile-badge:hover .profile-sign-out {
+        .profile-chip:hover .profile-username {
           color: var(--expense-red);
         }
+        .profile-chip:hover .profile-action-text {
+          color: var(--expense-red);
+        }
+
+        @media (max-width: 992px) {
+          .search-pill-input {
+            width: 130px;
+          }
+          .search-pill-input:focus {
+            width: 160px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .logo-text {
+            display: none;
+          }
+          .navbar-left-group {
+            gap: 16px;
+          }
+          .navbar-container {
+            padding: 0 16px;
+          }
+        }
+
+        @media (max-width: 580px) {
+          .profile-info {
+            display: none;
+          }
+          .profile-chip {
+            padding: 4px;
+          }
+          .search-pill-input {
+            width: 100px;
+          }
+          .search-pill-input:focus {
+            width: 120px;
+          }
+        }
+
         .footer-diagnostics {
           border-radius: 0 !important;
           border-top: 1px solid var(--glass-border);
