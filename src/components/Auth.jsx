@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { LogoIcon } from './Icons';
+
 
 export default function Auth({ settingsBox, onAuthSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -72,7 +74,7 @@ export default function Auth({ settingsBox, onAuthSuccess }) {
     <div className="auth-wrapper animate-fade">
       <div className="auth-card glass-panel">
         <div className="auth-header">
-          <div className="logo-icon gradient-bg" style={{ width: '40px', height: '40px', margin: '0 auto', borderRadius: '8px' }}></div>
+          <LogoIcon size={42} className="auth-logo-svg" style={{ margin: '0 auto 12px auto', display: 'block', filter: 'drop-shadow(0 0 10px rgba(0, 240, 255, 0.35))' }} />
           <h2 className="auth-logo-text font-display">AeroHub</h2>
           <p className="auth-subtitle">
             {isLogin ? 'Sign in to access your dashboard' : 'Create your workspace account'}

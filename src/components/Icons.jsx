@@ -240,3 +240,18 @@ export const MoonIcon = ({ className = '', size = 20 }) => (
   </svg>
 );
 
+export const LogoIcon = ({ className = '', size = 32 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 2L2 22l10-4 10 4L12 2z" fill="url(#logo-gradient)" stroke="none" />
+    <path d="M12 2v16" stroke="rgba(255, 255, 255, 0.4)" strokeWidth="1" />
+    <defs>
+      <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="var(--accent-cyan)" />
+        <stop offset="50%" stopColor="var(--accent-purple)" />
+        <stop offset="100%" stopColor="var(--accent-pink)" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+

@@ -196,26 +196,34 @@ export default function WallpaperCard({
           width: 38px;
           height: 38px;
           border-radius: 50%;
-          background: rgba(12, 13, 20, 0.8);
-          backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(10, 11, 22, 0.5);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           color: var(--text-secondary);
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
         .overlay-action-btn:hover {
-          background: var(--bg-primary);
-          color: white;
-          border-color: rgba(255, 255, 255, 0.25);
+          background: rgba(15, 17, 34, 0.7);
+          color: var(--accent-cyan);
+          border-color: rgba(0, 240, 255, 0.5);
+          box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
           transform: scale(1.1);
         }
         .overlay-action-btn.favorite-btn.active {
           color: var(--accent-pink);
-          border-color: rgba(236, 72, 153, 0.4);
+          border-color: var(--accent-pink);
           background: rgba(236, 72, 153, 0.15);
+          box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
+        }
+        .overlay-action-btn.favorite-btn:hover {
+          color: var(--accent-pink);
+          border-color: rgba(236, 72, 153, 0.6);
+          box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
         }
         .overlay-bottom {
           display: flex;

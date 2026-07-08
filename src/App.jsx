@@ -4,7 +4,8 @@ import WallpaperTab from './components/WallpaperTab';
 import AccountTab from './components/AccountTab';
 import SettingsModal from './components/SettingsModal';
 import Hive from './services/hive';
-import { DatabaseIcon, SearchIcon, HeartIcon, SettingsIcon, SunIcon, MoonIcon, FilterIcon } from './components/Icons';
+import { DatabaseIcon, SearchIcon, HeartIcon, SettingsIcon, SunIcon, MoonIcon, FilterIcon, LogoIcon } from './components/Icons';
+
 
 
 export default function App() {
@@ -230,10 +231,7 @@ export default function App() {
           {/* Left Section: Logo + Tab Switcher */}
           <div className="navbar-left-group">
             <div className="navbar-brand" onClick={() => { setActiveTab('wallpapers'); setSearchQuery(''); setShowFavoritesOnly(false); }}>
-              <div className="logo-icon-wrapper">
-                <span className="logo-icon-layer layer-1"></span>
-                <span className="logo-icon-layer layer-2"></span>
-              </div>
+              <LogoIcon size={30} className="brand-logo-svg" />
               <h1 className="logo-text font-display">AeroHub</h1>
             </div>
 
@@ -394,36 +392,13 @@ export default function App() {
           user-select: none;
           transition: transform 0.2s ease;
         }
-        .logo-icon-wrapper {
-          width: 34px;
-          height: 34px;
-          position: relative;
-          flex-shrink: 0;
+        .brand-logo-svg {
+          filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.2));
+          transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
-        .logo-icon-layer {
-          position: absolute;
-          inset: 0;
-          border-radius: var(--radius-sm);
-          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .logo-icon-layer.layer-1 {
-          background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
-          z-index: 2;
-          box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
-        }
-        .logo-icon-layer.layer-2 {
-          background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
-          z-index: 1;
-          transform: rotate(8deg) translate(2px, 2px) scale(0.95);
-          opacity: 0.6;
-        }
-        .navbar-brand:hover .logo-icon-layer.layer-1 {
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: 0 8px 16px rgba(139, 92, 246, 0.35);
-        }
-        .navbar-brand:hover .logo-icon-layer.layer-2 {
-          transform: rotate(-8deg) translate(-2px, 2px) scale(0.95);
-          opacity: 0.9;
+        .navbar-brand:hover .brand-logo-svg {
+          transform: rotate(12deg) scale(1.08);
+          filter: drop-shadow(0 0 10px var(--accent-cyan));
         }
         .logo-text {
           transition: filter 0.3s ease;
