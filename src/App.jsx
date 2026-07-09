@@ -36,8 +36,13 @@ export default function App() {
       const hash = window.location.hash.replace('#', '');
       if (hash === 'account') {
         setActiveTab('account');
+        setShowFavoritesOnly(false);
+      } else if (hash === 'favorites') {
+        setActiveTab('wallpapers');
+        setShowFavoritesOnly(true);
       } else {
         setActiveTab('wallpapers');
+        setShowFavoritesOnly(false);
       }
     };
 
@@ -46,12 +51,16 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Update hash when activeTab changes programmatically
+  // Update hash when activeTab or showFavoritesOnly changes programmatically
   useEffect(() => {
-    if (window.location.hash.replace('#', '') !== activeTab) {
-      window.location.hash = activeTab;
+    let expectedHash = activeTab;
+    if (activeTab === 'wallpapers' && showFavoritesOnly) {
+      expectedHash = 'favorites';
     }
-  }, [activeTab]);
+    if (window.location.hash.replace('#', '') !== expectedHash) {
+      window.location.hash = expectedHash;
+    }
+  }, [activeTab, showFavoritesOnly]);
 
   // 1. Initialize Hive Database boxes
   useEffect(() => {

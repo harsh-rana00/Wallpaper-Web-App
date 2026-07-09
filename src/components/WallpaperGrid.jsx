@@ -95,8 +95,32 @@ export default function WallpaperGrid({
       {/* Favorites Title Header */}
       {showFavoritesOnly && (
         <div className="favorites-header animate-fade-in">
-          <HeartIcon size={24} className="fav-title-icon" fill="var(--accent-pink)" />
-          <h2 className="font-display">My Favorite Collection ({favorites.length})</h2>
+          <div className="favorites-title-group">
+            <HeartIcon size={24} className="fav-title-icon" fill="var(--accent-pink)" />
+            <h2 className="font-display">My Favorite Collection ({favorites.length})</h2>
+          </div>
+          <button 
+            className="btn-back-feed font-display" 
+            onClick={() => window.location.hash = 'wallpapers'}
+            title="Back to Wallpaper Feed"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              width="18" 
+              height="18" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="back-arrow-icon"
+            >
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Back to Feed</span>
+          </button>
         </div>
       )}
 
@@ -285,8 +309,15 @@ export default function WallpaperGrid({
         .favorites-header {
           display: flex;
           align-items: center;
-          gap: 12px;
+          justify-content: space-between;
           margin-bottom: 32px;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+        .favorites-title-group {
+          display: flex;
+          align-items: center;
+          gap: 12px;
         }
         .favorites-header h2 {
           font-size: 1.6rem;
@@ -295,6 +326,36 @@ export default function WallpaperGrid({
         }
         .fav-title-icon {
           animation: heartPulse 1.2s infinite alternate ease-in-out;
+          display: inline-flex;
+          align-items: center;
+        }
+        .btn-back-feed {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: var(--glass-bg);
+          border: 1px solid var(--glass-border);
+          padding: 8px 18px;
+          border-radius: var(--radius-full);
+          color: var(--text-secondary);
+          font-family: var(--font-display);
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-back-feed:hover {
+          background: var(--glass-bg-hover);
+          border-color: var(--glass-border-hover);
+          color: var(--text-primary);
+          transform: translateX(-2px);
+          box-shadow: var(--neon-purple-shadow);
+        }
+        .back-arrow-icon {
+          transition: transform 0.3s ease;
+        }
+        .btn-back-feed:hover .back-arrow-icon {
+          transform: translateX(-4px);
         }
         @keyframes heartPulse {
           to {
