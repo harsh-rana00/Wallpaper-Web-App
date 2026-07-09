@@ -1,10 +1,59 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { CloseIcon, DownloadIcon, HeartIcon, MonitorIcon, SmartphoneIcon } from './Icons';
+import WallpaperCard from './WallpaperCard';
 
-export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, onToggleFavorite }) {
+export default function PreviewModal({ 
+  isOpen, 
+  onClose, 
+  wallpaper, 
+  isFavorite, 
+  onToggleFavorite,
+  wallpapers = [],
+  onSelectWallpaper,
+  favorites = [],
+  onCategoryChange
+}) {
   const [previewDevice, setPreviewDevice] = useState('desktop'); // 'phone' or 'desktop', default to desktop
   const [timeState, setTimeState] = useState({ time: '09:41', date: 'Tuesday, July 7' });
   const [selectedRes, setSelectedRes] = useState('1080p'); // default to 1080p resolution
+  const [recommendationLimit, setRecommendationLimit] = useState(12);
+
+  // Reset scroll position and limit when active wallpaper changes
+  useEffect(() => {
+    const body = document.querySelector('.preview-modal-body');
+    if (body) {
+      body.scrollTop = 0;
+    }
+    setRecommendationLimit(12);
+  }, [wallpaper]);
+
+  // Find related wallpapers based on the current wallpaper's category
+  const relatedWallpapersAll = useMemo(() => {
+    if (!wallpapers || wallpapers.length === 0 || !wallpaper) return [];
+    
+    // First, try matching same category, excluding the current wallpaper
+    let matched = wallpapers.filter(w => w.id !== wallpaper.id && w.category === wallpaper.category);
+    
+    // Then other wallpapers
+    const otherWallpapers = wallpapers.filter(w => w.id !== wallpaper.id && w.category !== wallpaper.category);
+    
+    return [...matched, ...otherWallpapers];
+  }, [wallpapers, wallpaper]);
+
+  const relatedWallpapers = useMemo(() => {
+    return relatedWallpapersAll.slice(0, recommendationLimit);
+  }, [relatedWallpapersAll, recommendationLimit]);
+
+  const handleSeeMore = () => {
+    if (recommendationLimit < relatedWallpapersAll.length) {
+      setRecommendationLimit(prev => prev + 12);
+    } else {
+      if (onCategoryChange) {
+        onCategoryChange(wallpaper.category);
+      }
+      onClose();
+    }
+  };
 
   // Update clock state dynamically for realism
   useEffect(() => {
@@ -145,9 +194,10 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
           </div>
         </div>
 
-        {/* Device Canvas Area */}
-        <div className="device-canvas">
-          <div className="device-container">
+        <div className="preview-modal-body">
+          {/* Device Canvas Area */}
+          <div className="device-canvas">
+            <div className="device-container">
             {previewDevice === 'phone' ? (
               // High Fidelity Phone Mockup
               <div 
@@ -277,9 +327,40 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
             </button>
           </div>
         </div>
-      </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+        {/* Recommended Wallpapers Grid Section */}
+        {relatedWallpapers.length > 0 && (
+          <div className="related-section animate-fade">
+            <h3 className="related-title font-display">Recommended Wallpapers</h3>
+            <div className={`related-grid ${previewDevice === 'phone' ? 'portrait' : 'landscape'}`}>
+              {relatedWallpapers.map((relWallpaper) => (
+                <WallpaperCard
+                  key={relWallpaper.id}
+                  wallpaper={relWallpaper}
+                  isFavorite={favorites.some(fav => fav.id === relWallpaper.id)}
+                  onToggleFavorite={onToggleFavorite}
+                  onPreview={onSelectWallpaper}
+                  orientation={previewDevice === 'phone' ? 'portrait' : 'landscape'}
+                />
+              ))}
+            </div>
+            
+            <div className="see-more-container">
+              <button 
+                type="button" 
+                className="see-more-btn font-display" 
+                onClick={handleSeeMore}
+              >
+                <span>See More Wallpapers</span>
+                <span className="see-more-arrow">→</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <style dangerouslySetInnerHTML={{ __html: `
         .preview-modal-overlay {
           position: fixed;
           top: 0;
@@ -295,10 +376,10 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
           backdrop-filter: blur(16px);
         }
         .preview-modal-content {
-          width: 100%;
-          max-width: 1200px;
-          height: 90vh;
-          max-height: 880px;
+          width: 95vw;
+          max-width: 1300px;
+          height: 92vh;
+          max-height: 940px;
           border-radius: var(--radius-lg);
           border: 1px solid var(--glass-border);
           box-shadow: 0 30px 70px rgba(0,0,0,0.8), var(--neon-purple-shadow);
@@ -387,15 +468,158 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
           color: var(--error);
           border-color: var(--error);
         }
-        .device-canvas {
+        .preview-modal-body {
           flex: 1;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+        .preview-modal-body::-webkit-scrollbar {
+          width: 8px;
+        }
+        .preview-modal-body::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .preview-modal-body::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.12);
+          border-radius: 4px;
+        }
+        .preview-modal-body::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.25);
+        }
+
+        .device-canvas {
           display: flex;
           align-items: center;
           justify-content: center;
           background: rgba(0, 0, 0, 0.2);
-          padding: 16px;
-          overflow: hidden;
+          padding: 32px 16px;
+          min-height: 720px;
+          box-sizing: border-box;
         }
+        .desktop-mockup {
+          width: 920px !important;
+          height: 530px !important;
+          border-width: 14px !important;
+          border-bottom-width: 22px !important;
+        }
+        .desktop-mockup-stand {
+          width: 170px !important;
+          height: 75px !important;
+        }
+        .desktop-mockup-base {
+          width: 280px !important;
+          height: 9px !important;
+        }
+        .phone-mockup {
+          width: 330px !important;
+          height: 660px !important;
+          border-width: 14px !important;
+          border-radius: 44px !important;
+        }
+        .phone-mockup::before {
+          width: 74px !important;
+          height: 22px !important;
+          border-radius: 11px !important;
+        }
+
+        .related-section {
+          padding: 32px 24px 64px 24px;
+          border-top: 1px solid var(--glass-border);
+          background: rgba(0, 0, 0, 0.15);
+        }
+        .related-title {
+          font-family: var(--font-display);
+          font-size: 1.25rem;
+          font-weight: 700;
+          margin-bottom: 20px;
+          color: var(--text-primary);
+          letter-spacing: 0.5px;
+        }
+        .related-grid {
+          display: grid;
+          gap: 16px;
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .related-grid.portrait {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        @media (max-width: 992px) {
+          .related-grid, .related-grid.portrait {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+        @media (max-width: 768px) {
+          .related-grid, .related-grid.portrait {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (max-width: 480px) {
+          .related-grid, .related-grid.portrait {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        .see-more-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-top: 36px;
+          width: 100%;
+        }
+        .see-more-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          padding: 16px 48px;
+          border-radius: var(--radius-full);
+          background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+          border: 2px solid rgba(168, 85, 247, 0.3);
+          color: white;
+          font-size: 1.05rem;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+          outline: none;
+        }
+        .see-more-btn:hover {
+          background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%);
+          border-color: transparent;
+          box-shadow: 0 8px 24px rgba(168, 85, 247, 0.35);
+          transform: translateY(-2.5px);
+        }
+        .see-more-btn:active {
+          transform: scale(0.96) translateY(0);
+          transition: transform 0.1s;
+        }
+        .see-more-btn:focus-visible {
+          box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.4);
+        }
+        .see-more-arrow {
+          transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          font-size: 1.2rem;
+        }
+        .see-more-btn:hover .see-more-arrow {
+          transform: translateX(6px);
+        }
+        
+        [data-theme='light'] .see-more-btn {
+          background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(79, 70, 229, 0.05) 100%);
+          border-color: rgba(124, 58, 237, 0.25);
+          color: var(--accent-purple);
+        }
+        [data-theme='light'] .see-more-btn:hover {
+          background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%);
+          border-color: transparent;
+          color: white;
+          box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+        }
+
         .desktop-view-wrapper {
           display: flex;
           flex-direction: column;
@@ -452,61 +676,90 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
         }
         .res-buttons-group {
           display: flex;
-          gap: 8px;
+          gap: 10px;
+          align-items: center;
         }
         .res-btn {
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 6px 14px;
-          border-radius: var(--radius-sm);
-          background: rgba(255, 255, 255, 0.03);
+          width: 160px;
+          height: 56px;
+          box-sizing: border-box;
+          padding: 8px 12px;
+          border-radius: var(--radius-md);
+          background: rgba(255, 255, 255, 0.04);
           border: 1px solid var(--glass-border);
           color: var(--text-secondary);
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          outline: none;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .res-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.09);
           color: var(--text-primary);
           border-color: var(--glass-border-hover);
+          transform: translateY(-1.5px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .res-btn:focus-visible {
+          box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.4);
+          border-color: var(--accent-purple);
+        }
+        .res-btn:active {
+          transform: scale(0.96) translateY(0);
+          transition: transform 0.1s;
         }
         .res-btn.active {
           background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%);
           color: white;
           border-color: transparent;
-          box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+          box-shadow: 0 8px 20px rgba(168, 85, 247, 0.35);
+          transform: translateY(0);
+        }
+        .res-btn.active:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 10px 24px rgba(168, 85, 247, 0.45);
         }
         .res-btn-label {
           font-family: var(--font-display);
           font-weight: 700;
-          font-size: 0.8rem;
-          letter-spacing: 0.2px;
+          font-size: 0.92rem;
+          letter-spacing: 0.3px;
+          line-height: 1.2;
         }
         .res-btn-desc {
-          font-size: 0.65rem;
+          font-size: 0.72rem;
           color: var(--text-muted);
-          margin-top: 2px;
-          transition: color 0.3s ease;
+          margin-top: 4px;
+          font-weight: 500;
+          transition: color 0.2s ease;
+          line-height: 1.1;
         }
         .res-btn.active .res-btn-desc {
           color: rgba(255, 255, 255, 0.85);
         }
         [data-theme='light'] .res-btn {
-          background: rgba(0, 0, 0, 0.02);
+          background: rgba(0, 0, 0, 0.03);
           border-color: rgba(0, 0, 0, 0.08);
           color: var(--text-secondary);
         }
         [data-theme='light'] .res-btn:hover {
-          background: rgba(124, 58, 237, 0.04);
-          color: var(--accent-purple);
-          border-color: rgba(124, 58, 237, 0.25);
+          background: rgba(0, 0, 0, 0.06);
+          color: var(--text-primary);
+          border-color: rgba(0, 0, 0, 0.16);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        [data-theme='light'] .res-btn:focus-visible {
+          box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.4);
+          border-color: var(--accent-purple);
         }
         [data-theme='light'] .res-btn.active {
           background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%);
           color: white;
           border-color: transparent;
+          box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
         }
 
         @media (max-width: 992px) {
@@ -533,7 +786,8 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
             max-height: none;
           }
           .device-canvas {
-            padding: 10px;
+            padding: 16px 10px;
+            min-height: auto !important;
           }
           .desktop-mockup {
             width: 480px;
@@ -593,6 +847,18 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
             flex: 1;
             justify-content: center;
           }
+          .res-buttons-group {
+            width: 100%;
+            display: flex;
+            gap: 8px;
+          }
+          .res-btn {
+            flex: 1;
+            width: auto;
+            min-width: 0;
+            height: 52px;
+            padding: 8px 8px;
+          }
         }
 
         @media (max-width: 480px) {
@@ -600,6 +866,10 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
             height: 98vh;
             width: 98vw;
             border-radius: var(--radius-md);
+          }
+          .device-canvas {
+            min-height: auto !important;
+            padding: 12px 6px;
           }
           .desktop-mockup {
             width: 280px;

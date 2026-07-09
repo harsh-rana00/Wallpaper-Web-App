@@ -201,6 +201,10 @@ export default function WallpaperTab({
         wallpaper={previewWallpaper}
         isFavorite={previewWallpaper ? favorites.some(fav => fav.id === previewWallpaper.id) : false}
         onToggleFavorite={onToggleFavorite}
+        wallpapers={showFavoritesOnly ? favorites : wallpapers}
+        onSelectWallpaper={setPreviewWallpaper}
+        favorites={favorites}
+        onCategoryChange={onCategoryChange}
       />
 
       <style dangerouslySetInnerHTML={{ __html: `
