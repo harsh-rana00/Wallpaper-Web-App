@@ -50,8 +50,8 @@ export default function SettingsModal({ isOpen, onClose, onKeySaved }) {
   };
 
   return (
-    <div className="modal-overlay animate-fade-in">
-      <div className="modal-content glass-panel">
+    <div className="modal-overlay animate-fade-in" onClick={onClose}>
+      <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose} aria-label="Close settings">
           <CloseIcon size={24} />
         </button>

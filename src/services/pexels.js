@@ -411,6 +411,85 @@ const FALLBACK_WALLPAPERS = {
   ]
 };
 
+const GENERATED_UNSPLASH_DATA = [
+  { unsplashId: 'photo-1507525428034-b723cf961d3e', photographer: 'Sean Oulashin', username: 'seano', category: 'Nature', avgColor: '#1d3e56' },
+  { unsplashId: 'photo-1447752875215-b2761acb3c5d', photographer: 'Charlotte Coneybeer', username: 'charlotteconeybeer', category: 'Forest', avgColor: '#3d4435' },
+  { unsplashId: 'photo-1470071459604-3b5ec3a7fe05', photographer: 'Daniel Mirlea', username: 'dmirlea', category: 'Landscape', avgColor: '#32402c' },
+  { unsplashId: 'photo-1501854140801-50d01698950b', photographer: 'Q.C. Studio', username: 'qcstudio', category: 'Mountains', avgColor: '#3a5441' },
+  { unsplashId: 'photo-1441974231531-c6227db76b6e', photographer: 'Jay Mantri', username: 'jaymantri', category: 'Forest', avgColor: '#455928' },
+  { unsplashId: 'photo-1523712999610-f77fbcfc3843', photographer: 'Bailey Zindel', username: 'baileyzindel', category: 'Nature', avgColor: '#2b3e4f' },
+  { unsplashId: 'photo-1434725039720-abb26e552c93', photographer: 'Dan Otis', username: 'danotis', category: 'Landscape', avgColor: '#415231' },
+  { unsplashId: 'photo-1472214222541-d510753a4907', photographer: 'Andreas Gücklhorn', username: 'polaroidmeister', category: 'Nature', avgColor: '#4d5939' },
+  { unsplashId: 'photo-1506744038136-46273834b3fb', photographer: 'Ansel Adams', username: 'anseladams', category: 'Mountains', avgColor: '#2e4157' },
+  { unsplashId: 'photo-1513836279014-a89f7a76ae86', photographer: 'Veeterzy', username: 'veeterzy', category: 'Forest', avgColor: '#3c4d32' },
+  { unsplashId: 'photo-1502082553048-f009c37129b9', photographer: 'Sven Brandsma', username: 'svenbrandsma', category: 'Minimalist', avgColor: '#2d3319' },
+  { unsplashId: 'photo-1448375240586-882707db888b', photographer: 'Sebastian Unrau', username: 'sebastian_unrau', category: 'Forest', avgColor: '#3a442e' },
+  { unsplashId: 'photo-1518495973542-4542c06a5843', photographer: 'Ales Krivec', username: 'akrivec', category: 'Nature', avgColor: '#5c523d' },
+  { unsplashId: 'photo-1473448912268-2022ce9509d8', photographer: 'Jeremy Thomas', username: 'jeremythomas', category: 'Forest', avgColor: '#583f2a' },
+  { unsplashId: 'photo-1500627869374-13ad9960a116', photographer: 'Nathan Dumlao', username: 'nathandumlao', category: 'Floral', avgColor: '#2e5c46' },
+  { unsplashId: 'photo-1469474968028-56623f02e42e', photographer: 'David Marcu', username: 'davidmarcu', category: 'Landscape', avgColor: '#4f553c' },
+  { unsplashId: 'photo-1511497584788-876760111969', photographer: 'Lukasz Szmigiel', username: 'szmigieldesign', category: 'Forest', avgColor: '#414f36' },
+  { unsplashId: 'photo-1505761671935-60b3a7424954', photographer: 'Luke Stackpoole', username: 'lpcs', category: 'City', avgColor: '#0a0d17' },
+  { unsplashId: 'photo-1486406146926-c627a92ad1ab', photographer: 'Ryunosuke Kikuno', username: 'ryunosuke_kikuno', category: 'Architecture', avgColor: '#1d273a' },
+  { unsplashId: 'photo-1496568818309-53d7f75e74c3', photographer: 'Jezael Melgoza', username: 'jezael', category: 'Cyberpunk', avgColor: '#100a1a' },
+  { unsplashId: 'photo-1504608524841-42fe6f032b4b', photographer: 'Claudio Testa', username: 'claudiotesta', category: 'Space', avgColor: '#030208' },
+  { unsplashId: 'photo-1462331940025-496dfbfc7564', photographer: 'NASA', username: 'nasa', category: 'Space', avgColor: '#1b0e2d' },
+  { unsplashId: 'photo-1518770660439-4636190af475', photographer: 'Alexandre Debiève', username: 'alexandre_debieve', category: 'Cyber', avgColor: '#0a1a2b' },
+  { unsplashId: 'photo-1451187580459-43490279c0fa', photographer: 'Manuel Cosentino', username: 'manuelcosentino', category: 'Abstract', avgColor: '#0e2b4f' },
+  { unsplashId: 'photo-1531297484001-80022131f5a1', photographer: 'Jannis Lucas', username: 'jannislucas', category: 'Futuristic', avgColor: '#181d26' },
+  { unsplashId: 'photo-1516321318423-f06f85e504b3', photographer: 'Fakurian Design', username: 'fakurian', category: 'Aesthetic', avgColor: '#1e0c2f' },
+  { unsplashId: 'photo-1506318137071-a8e063b4bec0', photographer: 'Astro', username: 'astro', category: 'Cosmic', avgColor: '#080512' },
+  { unsplashId: 'photo-1483728642387-6c3bdd6c93e5', photographer: 'Dino Reichmuth', username: 'dinoreichmuth', category: 'Mountains', avgColor: '#3d4b5a' },
+  { unsplashId: 'photo-1501785888041-af3ef285b470', photographer: 'Henrique M.', username: 'henrique_m', category: 'Water', avgColor: '#2b4d5a' },
+  { unsplashId: 'photo-1480714378408-67cf0d13bc1b', photographer: 'Lerone Pieters', username: 'neilson', category: 'Urban', avgColor: '#1c2838' },
+  { unsplashId: 'photo-1526080652727-5b77f74eacd2', photographer: 'Keith Hardy', username: 'keithhardy', category: 'Desert', avgColor: '#5c4832' },
+  { unsplashId: 'photo-1509042239860-f550ce710b93', photographer: 'David Clode', username: 'davidclode', category: 'Floral', avgColor: '#5c223c' },
+  { unsplashId: 'photo-1518837695005-2083093ee35b', photographer: 'Sasha Slobodiana', username: 'sashaslobodiana', category: 'Ocean', avgColor: '#2e4c5b' },
+  { unsplashId: 'photo-1504384308090-c894fdcc538d', photographer: 'Caspar Camille Rubin', username: 'casparrubin', category: 'Sci-Fi', avgColor: '#1a222f' },
+  { unsplashId: 'photo-1506187396773-75c7c244b23e', photographer: 'Lars van de Goor', username: 'larsvandegoor', category: 'Forest', avgColor: '#2e3a24' },
+  { unsplashId: 'photo-1518098268026-4e66a1a9c2e4', photographer: 'Paweł Czerwiński', username: 'pawel_czerwinski', category: 'Abstract', avgColor: '#4f3c5b' },
+  { unsplashId: 'photo-1509198397868-475647b2a1e5', photographer: 'Vincentiu Solomon', username: 'vincentiusolomon', category: 'Galactic', avgColor: '#0b0c1b' },
+  { unsplashId: 'photo-1454789548928-9efd52dc4031', photographer: 'NASA Hubble', username: 'hubble', category: 'Cosmic', avgColor: '#100a20' }
+];
+
+GENERATED_UNSPLASH_DATA.forEach((item, index) => {
+  const num = index + 13;
+  
+  FALLBACK_WALLPAPERS.portrait.push({
+    id: `f-p-${num}`,
+    width: 1080,
+    height: 1920,
+    url: `https://unsplash.com/photos/${item.unsplashId}`,
+    photographer: item.photographer,
+    photographer_url: `https://unsplash.com/@${item.username}`,
+    src: {
+      large2x: `https://images.unsplash.com/photo-${item.unsplashId.replace('photo-', '')}?q=80&w=1000&auto=format&fit=crop&ar=9:16`,
+      original: `https://images.unsplash.com/photo-${item.unsplashId.replace('photo-', '')}?q=80&w=1440&auto=format&fit=crop&ar=9:16`,
+      portrait: `https://images.unsplash.com/photo-${item.unsplashId.replace('photo-', '')}?q=80&w=1080&auto=format&fit=crop&ar=9:16`,
+      medium: `https://images.unsplash.com/photo-${item.unsplashId.replace('photo-', '')}?q=80&w=600&auto=format&fit=crop&ar=9:16`
+    },
+    category: item.category,
+    avg_color: item.avgColor
+  });
+
+  FALLBACK_WALLPAPERS.landscape.push({
+    id: `f-l-${num}`,
+    width: 1920,
+    height: 1080,
+    url: `https://unsplash.com/photos/${item.unsplashId}`,
+    photographer: item.photographer,
+    photographer_url: `https://unsplash.com/@${item.username}`,
+    src: {
+      large2x: `https://images.unsplash.com/photo-${item.unsplashId.replace('photo-', '')}?q=80&w=1200&auto=format&fit=crop&ar=16:10`,
+      original: `https://images.unsplash.com/photo-${item.unsplashId.replace('photo-', '')}?q=80&w=1920&auto=format&fit=crop&ar=16:10`,
+      portrait: `https://images.unsplash.com/photo-${item.unsplashId.replace('photo-', '')}?q=80&w=1000&auto=format&fit=crop&ar=16:10`,
+      medium: `https://images.unsplash.com/photo-${item.unsplashId.replace('photo-', '')}?q=80&w=600&auto=format&fit=crop&ar=16:10`
+    },
+    category: item.category,
+    avg_color: item.avgColor
+  });
+});
+
 // Base Fetch Function
 async function fetchFromPexels(endpoint, params = {}) {
   const apiKey = getApiKey();
@@ -436,6 +515,61 @@ async function fetchFromPexels(endpoint, params = {}) {
   return await response.json();
 }
 
+let currentSessionPageOffset = 1;
+
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function getRecentlyShown() {
+  try {
+    return JSON.parse(sessionStorage.getItem('aero_recently_shown') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function addRecentlyShown(ids) {
+  try {
+    let current = getRecentlyShown();
+    current = [...new Set([...ids, ...current])].slice(0, 60);
+    sessionStorage.setItem('aero_recently_shown', JSON.stringify(current));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function processAndDeduplicatePhotos(photos) {
+  if (!photos || photos.length === 0) return [];
+  
+  const recentlyShown = getRecentlyShown();
+  const fresh = [];
+  const old = [];
+  
+  photos.forEach(photo => {
+    if (recentlyShown.includes(String(photo.id))) {
+      old.push(photo);
+    } else {
+      fresh.push(photo);
+    }
+  });
+
+  const shuffledFresh = shuffleArray(fresh);
+  const shuffledOld = shuffleArray(old);
+  const finalPhotos = [...shuffledFresh, ...shuffledOld];
+  
+  // Record these photo IDs as recently shown
+  const newIds = finalPhotos.map(p => String(p.id));
+  addRecentlyShown(newIds);
+  
+  return finalPhotos;
+}
+
 /**
  * Fetch wallpapers (Pexels fetch with local fallback)
  * @param {string} query Search query (optional)
@@ -444,8 +578,20 @@ async function fetchFromPexels(endpoint, params = {}) {
  * @returns {Promise<{photos: Array, isFallback: boolean, total_results: number}>}
  */
 export async function getWallpapers({ query = '', orientation = 'landscape', page = 1 } = {}) {
-  const perPage = 32;
+  const perPage = 52;
   const isSearch = !!query;
+
+  // Set the random page offset on the first page load
+  if (page === 1) {
+    if (!isSearch) {
+      // Pick a random page between 1 and 20 for curated feed
+      currentSessionPageOffset = Math.floor(Math.random() * 20) + 1;
+    } else {
+      currentSessionPageOffset = 1;
+    }
+  }
+
+  const pageToRequest = currentSessionPageOffset + (page - 1);
 
   try {
     let data;
@@ -453,19 +599,22 @@ export async function getWallpapers({ query = '', orientation = 'landscape', pag
       data = await fetchFromPexels('search', {
         query,
         orientation,
-        page,
+        page: pageToRequest,
         per_page: perPage
       });
     } else {
       data = await fetchFromPexels('curated', {
         orientation,
-        page,
+        page: pageToRequest,
         per_page: perPage
       });
     }
 
+    const rawPhotos = data.photos || [];
+    const processedPhotos = processAndDeduplicatePhotos(rawPhotos);
+
     return {
-      photos: data.photos || [],
+      photos: processedPhotos,
       total_results: data.total_results || 0,
       isFallback: false
     };
@@ -487,14 +636,15 @@ export async function getWallpapers({ query = '', orientation = 'landscape', pag
     }
 
     // Paginate local results
-    const startIndex = (page - 1) * perPage;
+    const startIndex = (pageToRequest - 1) * perPage;
     const paginatedPhotos = sourceList.slice(startIndex, startIndex + perPage);
+    const processedPhotos = processAndDeduplicatePhotos(paginatedPhotos);
 
     return {
-      photos: paginatedPhotos,
+      photos: processedPhotos,
       total_results: sourceList.length,
       isFallback: true,
-      errorType: error.message // 'API_KEY_MISSING' or 'API_KEY_INVALID' etc
+      errorType: error.message
     };
   }
 }

@@ -12,16 +12,60 @@ export default function WallpaperTab({
   onToggleFavorite,
   showFavoritesOnly,
   onOpenSettings,
-  isCategoriesOpen
+  isCategoriesOpen,
+  activeCategory,
+  onCategoryChange
 }) {
   const [wallpapers, setWallpapers] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('All');
   const [orientation, setOrientation] = useState('landscape'); // 'landscape' or 'portrait'
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isFallbackActive, setIsFallbackActive] = useState(false);
   const [previewWallpaper, setPreviewWallpaper] = useState(null);
+  const [columns, setColumns] = useState(4);
+  const [hasLoadedMore, setHasLoadedMore] = useState(false);
+
+  // Reset pagination limit on visual state change
+  useEffect(() => {
+    setHasLoadedMore(false);
+  }, [searchQuery, activeCategory, orientation, showFavoritesOnly]);
+
+  // Handle responsive column calculations
+  useEffect(() => {
+    const updateColumns = () => {
+      const grid = document.querySelector('.wallpapers-grid');
+      if (grid) {
+        const computedStyle = window.getComputedStyle(grid);
+        const colString = computedStyle.gridTemplateColumns;
+        const colCount = colString.trim().split(/\s+/).length;
+        if (colCount > 0) {
+          setColumns(colCount);
+        }
+      } else {
+        // Precise layout math fallback
+        const w = window.innerWidth;
+        if (w >= 1200) {
+          setColumns(5);
+        } else {
+          const cardWidth = orientation === 'portrait' ? 130 : 180;
+          const padding = 32;
+          const gap = 16;
+          const availableWidth = Math.min(w, 1680) - padding;
+          const approxCols = Math.floor((availableWidth + gap) / (cardWidth + gap));
+          setColumns(Math.max(1, approxCols));
+        }
+      }
+    };
+
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    const timeoutId = setTimeout(updateColumns, 100);
+    return () => {
+      window.removeEventListener('resize', updateColumns);
+      clearTimeout(timeoutId);
+    };
+  }, [orientation, wallpapers]);
 
   // Load preferences from settings_box on mount
   useEffect(() => {
@@ -30,10 +74,6 @@ export default function WallpaperTab({
         const savedOrientation = await settingsBox.get('pref_orientation');
         if (savedOrientation) {
           setOrientation(savedOrientation);
-        }
-        const savedCategory = await settingsBox.get('pref_category');
-        if (savedCategory) {
-          setActiveCategory(savedCategory);
         }
       }
     }
@@ -82,21 +122,23 @@ export default function WallpaperTab({
   };
 
   const handleLoadMore = () => {
+    setHasLoadedMore(true);
     const nextPage = page + 1;
     setPage(nextPage);
     fetchWallpapers(nextPage, false);
   };
 
-  const handleCategoryChange = (category) => {
-    onResetSearch();
-    setActiveCategory(category);
-  };
+  // Category change handler is now managed at the root App level
 
   const handleOrientationChange = (newOrientation) => {
     setOrientation(newOrientation);
   };
 
   const displayedWallpapers = showFavoritesOnly ? favorites : wallpapers;
+  
+  const showLimit = !showFavoritesOnly && !hasLoadedMore;
+  const maxVisible = showLimit ? columns * 10 : displayedWallpapers.length;
+  const visibleWallpapers = displayedWallpapers.slice(0, maxVisible);
 
   return (
     <div className="wallpaper-tab animate-fade">
@@ -108,7 +150,7 @@ export default function WallpaperTab({
               Personalize Your Screen
             </h2>
             <p className="hero-subtitle" style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', color: 'var(--text-secondary)', maxWidth: '620px', margin: '0 auto', lineHeight: '1.7' }}>
-              Explore premium curated wallpapers for mobile and desktop screens. Try them on inside our simulated device mockups and download them in 1080p, 2K, or 4K resolutions.
+              Explore premium wallpapers for mobile and desktop. Preview inside device mockups and download in 1080p, 2K, and 4K resolutions.
             </p>
           </div>
         </div>
@@ -116,14 +158,14 @@ export default function WallpaperTab({
 
       <main className="main-content">
         <WallpaperGrid
-          wallpapers={displayedWallpapers}
+          wallpapers={visibleWallpapers}
           favorites={favorites}
           onToggleFavorite={onToggleFavorite}
           onPreview={setPreviewWallpaper}
           orientation={orientation}
           onOrientationChange={handleOrientationChange}
           activeCategory={activeCategory}
-          onCategoryChange={handleCategoryChange}
+          onCategoryChange={onCategoryChange}
           isLoading={isLoading}
           isFallbackActive={isFallbackActive}
           showFavoritesOnly={showFavoritesOnly}
@@ -132,7 +174,7 @@ export default function WallpaperTab({
         />
 
         {/* Load More Button */}
-        {!showFavoritesOnly && !isLoading && wallpapers.length > 0 && hasMore && (
+        {!showFavoritesOnly && !isLoading && wallpapers.length > 0 && (hasMore || wallpapers.length > maxVisible) && (
           <div className="load-more-container" style={{ display: 'flex', justifyC: 'center', justifyContent: 'center', marginBottom: '60px' }}>
             <button 
               className="btn btn-secondary" 

@@ -5,6 +5,25 @@ import AccountTab from './components/AccountTab';
 import SettingsModal from './components/SettingsModal';
 import Hive from './services/hive';
 import { DatabaseIcon, SearchIcon, HeartIcon, SettingsIcon, SunIcon, MoonIcon, FilterIcon, LogoIcon } from './components/Icons';
+import { CATEGORIES } from './components/WallpaperGrid';
+
+const getCategoryEmoji = (cat) => {
+  const mapping = {
+    'All': '🌐', 'Minimalist': '▫️', 'Cyberpunk': '⚡', 'Space': '🚀', 'Nature': '🌿', 
+    'Abstract': '🔮', 'City': '🌆', 'Anime': '🌸', 'Aesthetic': '✨', 'Vaporwave': '🌴', 
+    '3D Renders': '📐', 'Macro': '🔍', 'Architecture': '🏛️', 'Ocean': '🌊', 'Forest': '🌲', 
+    'Retro': '📻', 'Animals': '🦊', 'Dark': '🌙', 'Neon': '🚥', 'Mountains': '🏔️', 
+    'Cars': '🏎️', 'Cyber': '👾', 'Futuristic': '🛸', 'Synthwave': '🌅', 'Sunset': '🌇', 
+    'Lo-Fi': '☕', 'Cybernetic': '🤖', 'Galactic': '🌌', 'Minimal': '➖', 'Urban': '🏙️', 
+    'Texture': '🕸️', 'Art': '🎨', 'Landscape': '🏞️', 'Cyberpunk City': '🌃', 'Cosmic': '🪐', 
+    'Floral': '💐', 'Vintage': '📺', 'Sci-Fi': '📡',
+    'Steampunk': '⚙️', 'Glitch Art': '🌀', 'Solarpunk': '🌻', 'Retro-Wave': '🕶️', 'Deep Space': '🪐', 
+    'Abstract Shapes': '🧬', 'Low Poly': '💎', 'Fantasy': '🏰', 'Space Nebula': '☄️', 'Cyber-Street': '🛣️', 
+    'Pixel Art': '👾', 'Vector': '✒️', 'Holographic': '💿', 'Monochrome': '☯️', 'Aurora': '🌉', 
+    'Dark Synth': '🎹', 'Surrealism': '👁️', 'Pastel': '🍡', 'Matrix': '📟', 'Cyber-Forest': '🌳', 'Interstellar': '🌠', 'Show More Categories': '➕'
+  };
+  return mapping[cat] || '🖼️';
+};
 
 
 
@@ -20,6 +39,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('wallpapers'); // 'wallpapers' or 'account'
   const [theme, setTheme] = useState('dark'); // 'dark' or 'light'
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('All');
   
   // Tab States (passed to children)
   const [favorites, setFavorites] = useState([]);
@@ -82,6 +102,12 @@ export default function App() {
         const savedTheme = await setBox.get('app_theme');
         if (savedTheme) {
           setTheme(savedTheme);
+        }
+
+        // Load category configuration
+        const savedCategory = await setBox.get('pref_category');
+        if (savedCategory) {
+          setActiveCategory(savedCategory);
         }
 
         // Load wallpaper favorites, seed with default premium options on first load
@@ -183,6 +209,26 @@ export default function App() {
     }
   };
 
+  const handleCategoryChange = async (category) => {
+    if (category === 'Show More Categories') {
+      setIsCategoriesOpen(false);
+      setTimeout(() => {
+        const searchInput = document.querySelector('.search-pill-input') || document.querySelector('.search-input');
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }, 350); // wait for drawer slide-up animation to complete
+      return;
+    }
+
+    setSearchQuery('');
+    setActiveCategory(category);
+    setIsCategoriesOpen(false); // Smooth UX auto-closes categories drawer
+    if (settingsBox) {
+      await settingsBox.put('pref_category', category);
+    }
+  };
+
   // Favorite toggle callbacks
   const handleToggleFavorite = async (wallpaper) => {
     if (!favoritesBox) return;
@@ -266,7 +312,7 @@ export default function App() {
             {/* Search Input (Wallpapers only) */}
             {activeTab === 'wallpapers' && (
               <div className="search-pill-container">
-                <SearchIcon className="search-pill-icon" size={16} />
+                <SearchIcon className="search-pill-icon" size={24} />
                 <input
                   type="text"
                   className="search-pill-input"
@@ -329,6 +375,31 @@ export default function App() {
         </div>
       </header>
 
+      {/* Categories Drawer Dropdown Overlay */}
+      {activeTab === 'wallpapers' && !showFavoritesOnly && isCategoriesOpen && (
+        <>
+          <div className="categories-backdrop" onClick={() => setIsCategoriesOpen(false)} />
+          <div className="categories-drawer animate-slide-down">
+            <div className="categories-card-grid">
+              {CATEGORIES.map((category) => (
+                <button
+                  key={category}
+                  className={`category-card ${activeCategory === category ? 'active' : ''}`}
+                  onClick={() => handleCategoryChange(category)}
+                >
+                  <span className="category-card-emoji">
+                    {getCategoryEmoji(category)}
+                  </span>
+                  <span className="category-card-name">
+                    {category}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Main active Tab container */}
       <main className="main-content">
         {activeTab === 'wallpapers' ? (
@@ -342,6 +413,8 @@ export default function App() {
             showFavoritesOnly={showFavoritesOnly}
             onOpenSettings={() => setIsSettingsOpen(true)}
             isCategoriesOpen={isCategoriesOpen}
+            activeCategory={activeCategory}
+            onCategoryChange={handleCategoryChange}
           />
         ) : (
           <AccountTab
@@ -457,38 +530,67 @@ export default function App() {
         }
         .search-pill-icon {
           position: absolute;
-          left: 14px;
-          color: var(--text-muted);
+          left: 20px;
+          color: var(--text-secondary);
           pointer-events: none;
-          transition: color 0.3s ease;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .search-pill-input {
-          background: rgba(0, 0, 0, 0.15);
-          border: 1px solid var(--glass-border);
-          padding: 8px 16px 8px 36px;
+          background: rgba(0, 0, 0, 0.28);
+          border: 1px solid rgba(168, 85, 247, 0.25);
+          padding: 13px 24px 13px 56px;
           border-radius: var(--radius-full);
           color: var(--text-primary);
           font-family: var(--font-body);
-          font-size: 0.86rem;
-          width: 170px;
+          font-size: 0.95rem;
+          width: 320px;
           outline: none;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 4px 12px rgba(139, 92, 246, 0.04);
         }
         [data-theme='light'] .search-pill-input {
-          background: rgba(0, 0, 0, 0.04);
+          background: rgba(255, 255, 255, 0.85);
+          border-color: rgba(0, 0, 0, 0.12);
         }
         .search-pill-input:focus {
-          width: 210px;
-          background: rgba(0, 0, 0, 0.3);
+          width: 420px;
+          background: rgba(0, 0, 0, 0.4);
           border-color: var(--accent-purple);
-          box-shadow: 0 0 12px rgba(139, 92, 246, 0.1);
+          box-shadow: 0 0 20px rgba(139, 92, 246, 0.22), var(--neon-purple-shadow);
         }
         [data-theme='light'] .search-pill-input:focus {
-          background: rgba(255, 255, 255, 0.95);
-          box-shadow: 0 0 12px rgba(139, 92, 246, 0.06);
+          background: rgba(255, 255, 255, 0.98);
+          border-color: var(--accent-purple);
+          box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
         }
-        .search-pill-input:focus + .search-pill-icon {
+        .search-pill-container:focus-within .search-pill-icon {
           color: var(--accent-purple);
+          filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.6));
+          transform: scale(1.08);
+        }
+        @media (max-width: 820px) {
+          .search-pill-input {
+            width: 200px;
+            padding: 10px 18px 10px 46px;
+            font-size: 0.88rem;
+          }
+          .search-pill-input:focus {
+            width: 260px;
+          }
+          .search-pill-icon {
+            left: 14px;
+          }
+        }
+        @media (max-width: 480px) {
+          .search-pill-input {
+            width: 140px;
+          }
+          .search-pill-input:focus {
+            width: 180px;
+          }
         }
         .search-pill-clear {
           position: absolute;
@@ -778,6 +880,113 @@ export default function App() {
         .diag-active {
           color: var(--income-green);
         }
+
+        /* Categories Drawer & Card Styles */
+        .categories-backdrop {
+          position: fixed;
+          top: var(--header-height);
+          left: 0;
+          width: 100vw;
+          height: calc(100vh - var(--header-height));
+          background: rgba(0, 0, 0, 0.45);
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          z-index: 98;
+          animation: fadeIn 0.25s ease forwards;
+        }
+
+        .categories-drawer {
+          position: fixed;
+          top: var(--header-height);
+          left: 0;
+          width: 100%;
+          max-height: calc(100vh - var(--header-height));
+          overflow-y: auto;
+          z-index: 99;
+          background: rgba(8, 9, 18, 0.96);
+          backdrop-filter: blur(28px) saturate(190%);
+          -webkit-backdrop-filter: blur(28px) saturate(190%);
+          border-bottom: 1px solid var(--glass-border);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+          padding: 32px 24px;
+          animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        [data-theme='light'] .categories-drawer {
+          background: rgba(245, 247, 251, 0.96);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+        }
+
+        @keyframes slideDown {
+          from {
+            transform: translateY(-20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+
+        .categories-card-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+          gap: 12px;
+          max-width: var(--max-width);
+          margin: 0 auto;
+        }
+
+        .category-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 18px 12px;
+          border-radius: var(--radius-md);
+          border: 1px solid var(--glass-border);
+          background: rgba(255, 255, 255, 0.02);
+          color: var(--text-secondary);
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          text-align: center;
+        }
+
+        [data-theme='light'] .category-card {
+          background: rgba(0, 0, 0, 0.02);
+        }
+
+        .category-card:hover {
+          background: var(--glass-bg-hover);
+          border-color: var(--glass-border-hover);
+          color: var(--text-primary);
+          transform: translateY(-2px);
+          box-shadow: var(--neon-purple-shadow);
+        }
+
+        .category-card.active {
+          background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%);
+          color: white;
+          border-color: transparent;
+          box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .category-card-emoji {
+          font-size: 1.85rem;
+          transition: transform 0.25s ease;
+        }
+
+        .category-card:hover .category-card-emoji {
+          transform: scale(1.18) rotate(6deg);
+        }
+
+        .category-card-name {
+          font-size: 0.8rem;
+          font-weight: 600;
+          font-family: var(--font-display);
+          letter-spacing: 0.2px;
+        }
+
         @keyframes spin {
           to { transform: rotate(360deg); }
         }

@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import WallpaperCard from './WallpaperCard';
 import { MonitorIcon, SmartphoneIcon, HeartIcon, SearchIcon, InfoIcon } from './Icons';
 
-const CATEGORIES = [
+export const CATEGORIES = [
   'All', 'Minimalist', 'Cyberpunk', 'Space', 'Nature', 'Abstract', 'City', 'Anime', 'Aesthetic',
   'Vaporwave', '3D Renders', 'Macro', 'Architecture', 'Ocean', 'Forest', 'Retro',
   'Animals', 'Dark', 'Neon', 'Mountains', 'Cars', 'Cyber', 'Futuristic',
   'Synthwave', 'Sunset', 'Lo-Fi', 'Cybernetic', 'Galactic', 'Minimal', 'Urban',
-  'Texture', 'Art', 'Landscape', 'Cyberpunk City', 'Cosmic', 'Floral', 'Vintage', 'Sci-Fi'
+  'Texture', 'Art', 'Landscape', 'Cyberpunk City', 'Cosmic', 'Floral', 'Vintage', 'Sci-Fi',
+  'Steampunk', 'Glitch Art', 'Solarpunk', 'Retro-Wave', 'Deep Space', 'Abstract Shapes', 'Low Poly',
+  'Fantasy', 'Space Nebula', 'Cyber-Street', 'Pixel Art', 'Vector', 'Holographic', 'Monochrome',
+  'Aurora', 'Dark Synth', 'Surrealism', 'Pastel', 'Matrix', 'Cyber-Forest', 'Interstellar', 'Show More Categories'
 ];
 
 export default function WallpaperGrid({
@@ -28,34 +31,7 @@ export default function WallpaperGrid({
   return (
     <section className="wallpaper-section" style={{ maxWidth: 'var(--max-width)', margin: '0 auto', padding: '0 24px' }}>
       
-      {/* Collapsible Categories Drawer */}
-      {!showFavoritesOnly && isCategoriesOpen && (
-        <div className="categories-section animate-fade" style={{ marginBottom: '24px' }}>
-          <div className="categories-pill-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', padding: '20px 24px', borderRadius: 'var(--radius-md)', background: 'rgba(0,0,0,0.15)', border: '1px solid var(--glass-border)' }}>
-            {CATEGORIES.map((category) => (
-              <button
-                key={category}
-                className={`category-pill ${activeCategory === category ? 'active' : ''}`}
-                onClick={() => onCategoryChange(category)}
-                style={{
-                  padding: '8px 18px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--glass-border)',
-                  background: activeCategory === category ? 'linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%)' : 'rgba(0,0,0,0.1)',
-                  color: activeCategory === category ? '#ffffff' : 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  fontSize: '0.85rem',
-                  fontWeight: '600',
-                  fontFamily: 'var(--font-body)',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Categories Drawer moved to root/App level for fixed sticky-navbar overlay */}
 
       {/* Orientation switcher row */}
       <div className="filters-container" style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '32px' }}>
@@ -196,11 +172,14 @@ export default function WallpaperGrid({
           display: flex;
           padding: 4px;
           border-radius: var(--radius-full);
-          background: rgba(12, 13, 20, 0.4);
+          background: var(--glass-bg);
           border: 1px solid var(--glass-border);
+          box-shadow: var(--glass-shadow);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
         }
         .switch-btn {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           gap: 8px;
           padding: 10px 20px;
@@ -213,6 +192,9 @@ export default function WallpaperGrid({
           font-size: 0.9rem;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .switch-btn:hover {
+          color: var(--text-primary);
         }
         .switch-btn.active {
           background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%);
