@@ -198,7 +198,7 @@ export default function SettingsModal({ isOpen, onClose, onKeySaved }) {
           border: 1px solid var(--glass-border);
           border-radius: var(--radius-sm);
           padding: 12px 16px;
-          color: white;
+          color: var(--text-primary);
           font-family: var(--font-body);
           font-size: 0.95rem;
           transition: border-color 0.2s ease, box-shadow 0.2s ease;

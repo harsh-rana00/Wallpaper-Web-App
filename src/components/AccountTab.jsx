@@ -365,7 +365,7 @@ export default function AccountTab({
               <button 
                 className="btn btn-secondary" 
                 onClick={onToggleTheme}
-                style={{ background: 'rgba(0,0,0,0.15)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', padding: '6px 14px', borderRadius: '6px', fontSize: '0.8rem' }}
+                style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', padding: '6px 14px', borderRadius: '6px', fontSize: '0.8rem' }}
               >
                 {theme === 'dark' ? '☀️ Light Theme' : '🌙 Dark Theme'}
               </button>

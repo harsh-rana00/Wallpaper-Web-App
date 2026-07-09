@@ -128,28 +128,42 @@ export default function WallpaperCard({
           width: 100%;
           border-radius: var(--radius-md);
           overflow: hidden;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          box-shadow: 0 6px 24px rgba(0,0,0,0.35);
           border: 1px solid var(--glass-border);
-          transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           cursor: pointer;
+          padding: 0 !important;
+        }
+        .wallpaper-card::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+          transform: translateX(-100%) translateY(-100%) rotate(45deg);
+          transition: transform 0.6s ease;
+          pointer-events: none;
+          z-index: 5;
         }
         .wallpaper-card:hover {
-          transform: translateY(-8px) scale(1.01);
-          box-shadow: 0 12px 30px rgba(0,0,0,0.5), var(--neon-purple-shadow);
-          border-color: var(--glass-border-hover);
+          transform: translateY(-6px) scale(1.02);
+          box-shadow: 0 16px 36px rgba(139, 92, 246, 0.22), 0 0 15px rgba(168, 85, 247, 0.2), var(--neon-purple-shadow);
+          border-color: rgba(168, 85, 247, 0.55);
+        }
+        .wallpaper-card:hover::after {
+          transform: translateX(100%) translateY(100%) rotate(45deg);
         }
         .card-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
           opacity: 0;
-          transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+          transition: opacity 0.5s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .card-image.loaded {
           opacity: 1;
         }
         .wallpaper-card:hover .card-image {
-          transform: scale(1.08);
+          transform: scale(1.06);
         }
         .card-skeleton {
           position: absolute;

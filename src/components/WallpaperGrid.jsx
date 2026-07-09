@@ -34,12 +34,11 @@ export default function WallpaperGrid({
       {/* Categories Drawer moved to root/App level for fixed sticky-navbar overlay */}
 
       {/* Orientation switcher row */}
-      <div className="filters-container" style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '32px' }}>
-        <div className="orientation-switch glass-panel" style={{ padding: '4px', borderRadius: 'var(--radius-full)' }}>
+      <div className="filters-container">
+        <div className="orientation-switch glass-panel">
           <button
             className={`switch-btn ${orientation === 'landscape' ? 'active' : ''}`}
             onClick={() => onOrientationChange('landscape')}
-            style={{ fontFamily: 'var(--font-body)' }}
           >
             <MonitorIcon size={18} />
             <span>Desktop Wallpapers</span>
@@ -47,7 +46,6 @@ export default function WallpaperGrid({
           <button
             className={`switch-btn ${orientation === 'portrait' ? 'active' : ''}`}
             onClick={() => onOrientationChange('portrait')}
-            style={{ fontFamily: 'var(--font-body)' }}
           >
             <SmartphoneIcon size={18} />
             <span>Mobile Wallpapers</span>
@@ -163,33 +161,35 @@ export default function WallpaperGrid({
         .filters-container {
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          justify-content: flex-start;
           gap: 24px;
-          margin-bottom: 32px;
+          margin-top: 36px;
+          margin-bottom: 36px;
           flex-wrap: wrap;
         }
         .orientation-switch {
           display: flex;
-          padding: 4px;
+          padding: 6px;
           border-radius: var(--radius-full);
           background: var(--glass-bg);
           border: 1px solid var(--glass-border);
           box-shadow: var(--glass-shadow);
           backdrop-filter: blur(24px) saturate(180%);
           -webkit-backdrop-filter: blur(24px) saturate(180%);
+          gap: 8px;
         }
         .switch-btn {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          padding: 10px 20px;
+          gap: 10px;
+          padding: 12px 28px;
           border-radius: var(--radius-full);
           border: none;
           background: transparent;
           color: var(--text-secondary);
           font-family: var(--font-display);
-          font-weight: 600;
-          font-size: 0.9rem;
+          font-weight: 700;
+          font-size: 0.95rem;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -347,16 +347,16 @@ export default function WallpaperGrid({
         .wallpapers-grid {
           display: grid;
           gap: 16px;
-          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         }
         .wallpapers-grid.portrait {
           display: grid;
           gap: 16px;
-          grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         }
         @media (min-width: 1200px) {
           .wallpapers-grid, .wallpapers-grid.portrait {
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
           }
         }
         .empty-state-container {

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { CloseIcon, DownloadIcon, HeartIcon, MonitorIcon, SmartphoneIcon } from './Icons';
 
 export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, onToggleFavorite }) {
-  const [previewDevice, setPreviewDevice] = useState('phone'); // 'phone' or 'desktop'
+  const [previewDevice, setPreviewDevice] = useState('desktop'); // 'phone' or 'desktop', default to desktop
   const [timeState, setTimeState] = useState({ time: '09:41', date: 'Tuesday, July 7' });
-  const [selectedRes, setSelectedRes] = useState('original');
+  const [selectedRes, setSelectedRes] = useState('1080p'); // default to 1080p resolution
 
   // Update clock state dynamically for realism
   useEffect(() => {
@@ -27,12 +27,10 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
     return () => clearInterval(interval);
   }, []);
 
-  // Determine initial layout preview on load based on image aspect ratio
+  // Initialize layout preview to Desktop View by default on load
   useEffect(() => {
-    if (isOpen && wallpaper) {
-      if (wallpaper.width && wallpaper.height) {
-        setPreviewDevice(wallpaper.width > wallpaper.height ? 'desktop' : 'phone');
-      }
+    if (isOpen) {
+      setPreviewDevice('desktop');
     }
   }, [isOpen, wallpaper]);
 
@@ -253,30 +251,27 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
             </p>
           </div>
           
-          <div className="download-res-selector" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="download-res-selector" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Resolution:</span>
-            <select 
-              value={selectedRes} 
-              onChange={(e) => setSelectedRes(e.target.value)}
-              style={{
-                background: 'rgba(0,0,0,0.3)',
-                border: '1px solid var(--glass-border)',
-                color: 'var(--text-primary)',
-                padding: '8px 12px',
-                borderRadius: 'var(--radius-sm)',
-                outline: 'none',
-                fontFamily: 'var(--font-body)',
-                fontSize: '0.85rem',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="original">Original ({wallpaper.width}x{wallpaper.height})</option>
-              <option value="4k">4K UHD ({previewDevice === 'phone' ? '2160x3840' : '3840x2160'})</option>
-              <option value="2k">2K QHD ({previewDevice === 'phone' ? '1440x2560' : '2560x1440'})</option>
-              <option value="1080p">1080p FHD ({previewDevice === 'phone' ? '1080x1920' : '1920x1080'})</option>
-            </select>
+            <div className="res-buttons-group">
+              {[
+                { value: '1080p', label: '1080p (Full HD)', desc: previewDevice === 'phone' ? '1080x1920' : '1920x1080' },
+                { value: '2k', label: '2K (QHD)', desc: previewDevice === 'phone' ? '1440x2560' : '2560x1440' },
+                { value: '4k', label: '4K (Ultra HD)', desc: previewDevice === 'phone' ? '2160x3840' : '3840x2160' }
+              ].map(res => (
+                <button
+                  key={res.value}
+                  type="button"
+                  className={`res-btn ${selectedRes === res.value ? 'active' : ''}`}
+                  onClick={() => setSelectedRes(res.value)}
+                >
+                  <span className="res-btn-label">{res.label}</span>
+                  <span className="res-btn-desc">{res.desc}</span>
+                </button>
+              ))}
+            </div>
 
-            <button className="btn btn-primary" onClick={handleDownload} style={{ padding: '8px 16px', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem' }}>
+            <button className="btn btn-primary" onClick={handleDownload} style={{ padding: '12px 24px', borderRadius: 'var(--radius-sm)', fontSize: '0.90rem', height: '42px' }}>
               <DownloadIcon size={16} />
               <span>Download</span>
             </button>
@@ -301,9 +296,9 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
         }
         .preview-modal-content {
           width: 100%;
-          max-width: 840px;
+          max-width: 1200px;
           height: 90vh;
-          max-height: 740px;
+          max-height: 880px;
           border-radius: var(--radius-lg);
           border: 1px solid var(--glass-border);
           box-shadow: 0 30px 70px rgba(0,0,0,0.8), var(--neon-purple-shadow);
@@ -315,7 +310,7 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 20px 24px;
+          padding: 14px 24px;
           border-bottom: 1px solid var(--glass-border);
           background: rgba(7, 7, 10, 0.4);
         }
@@ -364,16 +359,28 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
         .action-btn-circle:hover {
           background: rgba(255, 255, 255, 0.08);
-          color: white;
+          color: var(--text-primary);
+          transform: scale(1.08) translateY(-1px);
+        }
+        .action-btn-circle:active {
+          transform: scale(0.95);
         }
         .action-btn-circle.active {
-          color: var(--accent-pink);
-          border-color: rgba(236, 72, 153, 0.4);
-          background: rgba(236, 72, 153, 0.15);
+          color: var(--accent-pink) !important;
+          border-color: rgba(236, 72, 153, 0.45) !important;
+          background: rgba(236, 72, 153, 0.1) !important;
+          box-shadow: 0 0 12px rgba(236, 72, 153, 0.2) !important;
+          animation: heartBeatPulse 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        @keyframes heartBeatPulse {
+          0% { transform: scale(1); }
+          30% { transform: scale(1.22); }
+          60% { transform: scale(0.9); }
+          100% { transform: scale(1); }
         }
         .action-btn-circle.close-btn:hover {
           background: rgba(239, 68, 68, 0.1);
@@ -386,7 +393,7 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
           align-items: center;
           justify-content: center;
           background: rgba(0, 0, 0, 0.2);
-          padding: 30px;
+          padding: 16px;
           overflow: hidden;
         }
         .desktop-view-wrapper {
@@ -443,6 +450,82 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
           font-size: 0.8rem;
           color: var(--text-muted);
         }
+        .res-buttons-group {
+          display: flex;
+          gap: 8px;
+        }
+        .res-btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 6px 14px;
+          border-radius: var(--radius-sm);
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid var(--glass-border);
+          color: var(--text-secondary);
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .res-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: var(--text-primary);
+          border-color: var(--glass-border-hover);
+        }
+        .res-btn.active {
+          background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%);
+          color: white;
+          border-color: transparent;
+          box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        .res-btn-label {
+          font-family: var(--font-display);
+          font-weight: 700;
+          font-size: 0.8rem;
+          letter-spacing: 0.2px;
+        }
+        .res-btn-desc {
+          font-size: 0.65rem;
+          color: var(--text-muted);
+          margin-top: 2px;
+          transition: color 0.3s ease;
+        }
+        .res-btn.active .res-btn-desc {
+          color: rgba(255, 255, 255, 0.85);
+        }
+        [data-theme='light'] .res-btn {
+          background: rgba(0, 0, 0, 0.02);
+          border-color: rgba(0, 0, 0, 0.08);
+          color: var(--text-secondary);
+        }
+        [data-theme='light'] .res-btn:hover {
+          background: rgba(124, 58, 237, 0.04);
+          color: var(--accent-purple);
+          border-color: rgba(124, 58, 237, 0.25);
+        }
+        [data-theme='light'] .res-btn.active {
+          background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-purple) 100%);
+          color: white;
+          border-color: transparent;
+        }
+
+        @media (max-width: 992px) {
+          .desktop-mockup {
+            width: 580px;
+            height: 335px;
+          }
+          .desktop-mockup-stand {
+            width: 110px;
+            height: 50px;
+          }
+          .desktop-mockup-base {
+            width: 180px;
+          }
+          .phone-mockup {
+            width: 270px;
+            height: 540px;
+          }
+        }
 
         @media (max-width: 768px) {
           .preview-modal-content {
@@ -453,38 +536,120 @@ export default function PreviewModal({ isOpen, onClose, wallpaper, isFavorite, o
             padding: 10px;
           }
           .desktop-mockup {
-            width: 320px;
-            height: 190px;
+            width: 480px;
+            height: 270px;
             border-width: 8px;
             border-bottom-width: 14px;
           }
           .desktop-mockup-stand {
-            width: 70px;
-            height: 40px;
+            width: 90px;
+            height: 45px;
           }
           .desktop-mockup-base {
-            width: 120px;
+            width: 150px;
             height: 5px;
           }
-          .desktop-mockup-icon {
-            width: 16px;
+          .phone-mockup {
+            width: 240px;
+            height: 480px;
+            border-width: 8px;
+          }
+          .phone-mockup::before {
+            width: 60px;
             height: 16px;
+            top: 6px;
           }
-          .desktop-mockup-dock {
-            padding: 3px 6px;
-            border-radius: 6px;
-            gap: 4px;
+          .phone-mockup-info {
+            padding: 24px 12px 14px 12px;
           }
-          .desktop-mockup-dock-item {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
+          .phone-mockup-time h2 {
+            font-size: 2.2rem;
           }
           .preview-footer {
             flex-direction: column;
             align-items: center;
             text-align: center;
             padding: 12px;
+          }
+        }
+
+        @media (max-width: 580px) {
+          .preview-top-bar {
+            flex-direction: column;
+            gap: 12px;
+            padding: 12px 16px;
+            align-items: center;
+          }
+          .modal-right-actions {
+            width: 100%;
+            justify-content: center;
+            gap: 8px;
+          }
+          .device-switcher-pills {
+            width: 100%;
+            justify-content: center;
+          }
+          .switch-pill {
+            flex: 1;
+            justify-content: center;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .preview-modal-content {
+            height: 98vh;
+            width: 98vw;
+            border-radius: var(--radius-md);
+          }
+          .desktop-mockup {
+            width: 280px;
+            height: 160px;
+            border-width: 6px;
+            border-bottom-width: 10px;
+          }
+          .desktop-mockup-stand {
+            width: 60px;
+            height: 25px;
+          }
+          .desktop-mockup-base {
+            width: 100px;
+            height: 4px;
+          }
+          .desktop-mockup-dock {
+            display: none;
+          }
+          .phone-mockup {
+            width: 200px;
+            height: 400px;
+            border-width: 8px;
+            border-radius: 28px;
+          }
+          .phone-mockup::before {
+            width: 50px;
+            height: 14px;
+            top: 5px;
+          }
+          .phone-mockup-info {
+            padding: 20px 10px 10px 10px;
+          }
+          .phone-mockup-time h2 {
+            font-size: 1.85rem;
+          }
+          .phone-mockup-shortcut {
+            width: 32px;
+            height: 32px;
+          }
+          .preview-footer {
+            padding: 8px;
+            gap: 8px;
+          }
+          .download-res-selector {
+            width: 100%;
+            justify-content: center;
+          }
+          .res-buttons-group {
+            width: 100%;
+            justify-content: center;
           }
         }
       `}} />
