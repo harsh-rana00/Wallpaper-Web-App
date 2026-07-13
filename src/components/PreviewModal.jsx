@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { CloseIcon, DownloadIcon, HeartIcon, MonitorIcon, SmartphoneIcon } from './Icons';
+import { DownloadIcon, HeartIcon, MonitorIcon, SmartphoneIcon } from './Icons';
 import WallpaperCard from './WallpaperCard';
 
 export default function PreviewModal({ 
@@ -76,10 +76,11 @@ export default function PreviewModal({
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize layout preview to Desktop View by default on load
+  // Initialize layout preview to match the wallpaper's natural orientation
   useEffect(() => {
-    if (isOpen) {
-      setPreviewDevice('desktop');
+    if (isOpen && wallpaper) {
+      const isWallpaperPortrait = wallpaper.width < wallpaper.height;
+      setPreviewDevice(isWallpaperPortrait ? 'phone' : 'desktop');
     }
   }, [isOpen, wallpaper]);
 
@@ -112,13 +113,23 @@ export default function PreviewModal({
   };
 
   const isPortrait = previewDevice === 'phone';
+  const isWallpaperPortrait = wallpaper.width < wallpaper.height;
+
+  // 1. Download source resolution computation (matches selected device view crop)
   const baseSrc = isPortrait 
     ? (wallpaper.src.portrait || wallpaper.src.large2x || wallpaper.src.original)
     : (wallpaper.src.landscape || wallpaper.src.original || wallpaper.src.large2x);
-
   const displaySrc = getResizedUrl(baseSrc, selectedRes, isPortrait);
-
   const downloadUrl = wallpaper.src.original || displaySrc;
+
+  // 2. Stable preview source (matches native wallpaper orientation to prevent reload flashing)
+  const previewBaseSrc = isWallpaperPortrait 
+    ? (wallpaper.src.portrait || wallpaper.src.original || wallpaper.src.large2x)
+    : (wallpaper.src.landscape || wallpaper.src.original || wallpaper.src.large2x);
+  const previewSrc = getResizedUrl(previewBaseSrc, '1080p', isWallpaperPortrait);
+  const lowResUrl = wallpaper.src.medium || previewBaseSrc;
+
+  // 3. Mockup fit style is contain to prevent cropping (background blur handles margins)
 
   const handleDownload = () => {
     const isPortrait = previewDevice === 'phone';
@@ -202,8 +213,26 @@ export default function PreviewModal({
               // High Fidelity Phone Mockup
               <div 
                 className="phone-mockup" 
-                style={{ backgroundImage: `url(${displaySrc})` }}
+                style={{ 
+                  backgroundColor: wallpaper.avg_color || '#0c0c0e'
+                }}
               >
+                {/* Background Blur Layer */}
+                <div 
+                  className="mockup-bg-blur"
+                  style={{ 
+                    backgroundImage: `url("${previewSrc}"), url("${lowResUrl}")`
+                  }}
+                />
+                {/* Crisp Foreground Layer */}
+                <div 
+                  className="mockup-fg-image"
+                  style={{ 
+                    backgroundImage: `url("${previewSrc}"), url("${lowResUrl}")`
+                  }}
+                />
+
+                {/* UI Overlay */}
                 <div className="phone-mockup-info">
                   {/* Status Bar */}
                   <div className="phone-status-bar">
@@ -240,8 +269,26 @@ export default function PreviewModal({
               <div className="desktop-view-wrapper">
                 <div 
                   className="desktop-mockup" 
-                  style={{ backgroundImage: `url(${displaySrc})` }}
+                  style={{ 
+                    backgroundColor: wallpaper.avg_color || '#0c0c0e'
+                  }}
                 >
+                  {/* Background Blur Layer */}
+                  <div 
+                    className="mockup-bg-blur"
+                    style={{ 
+                      backgroundImage: `url("${previewSrc}"), url("${lowResUrl}")`
+                    }}
+                  />
+                  {/* Crisp Foreground Layer */}
+                  <div 
+                    className="mockup-fg-image"
+                    style={{ 
+                      backgroundImage: `url("${previewSrc}"), url("${lowResUrl}")`
+                    }}
+                  />
+
+                  {/* UI Overlay */}
                   <div className="desktop-mockup-screen">
                     {/* Top OS System Menu Bar */}
                     <div className="desktop-mockup-menubar">
@@ -376,10 +423,10 @@ export default function PreviewModal({
           backdrop-filter: blur(16px);
         }
         .preview-modal-content {
-          width: 95vw;
-          max-width: 1300px;
-          height: 92vh;
-          max-height: 940px;
+          width: 98vw;
+          max-width: 1560px;
+          height: 96vh;
+          max-height: 1040px;
           border-radius: var(--radius-lg);
           border: 1px solid var(--glass-border);
           box-shadow: 0 30px 70px rgba(0,0,0,0.8), var(--neon-purple-shadow);
@@ -391,7 +438,7 @@ export default function PreviewModal({
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 14px 24px;
+          padding: 10px 20px;
           border-bottom: 1px solid var(--glass-border);
           background: rgba(7, 7, 10, 0.4);
         }
@@ -494,35 +541,158 @@ export default function PreviewModal({
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(0, 0, 0, 0.2);
-          padding: 32px 16px;
-          min-height: 720px;
+          background: rgba(0, 0, 0, 0.25);
+          padding: 12px;
+          min-height: 480px;
+          height: 70vh;
+          max-height: 780px;
           box-sizing: border-box;
+          position: relative;
+          overflow: hidden;
+        }
+        .desktop-view-wrapper {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          --mockup-w: min(92vw, calc(min(54vh, 580px) * 1.74));
+          --mockup-h: calc(var(--mockup-w) / 1.74);
         }
         .desktop-mockup {
-          width: 920px !important;
-          height: 530px !important;
-          border-width: 14px !important;
-          border-bottom-width: 22px !important;
+          position: relative !important;
+          overflow: hidden !important;
+          width: var(--mockup-w) !important;
+          height: var(--mockup-h) !important;
+          border: solid #1f2937 !important;
+          border-width: calc(var(--mockup-w) * 0.015) !important;
+          border-bottom-width: calc(var(--mockup-w) * 0.028) !important;
+          border-radius: calc(var(--mockup-w) * 0.015) !important;
+          box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), var(--neon-cyan-shadow) !important;
         }
         .desktop-mockup-stand {
-          width: 170px !important;
-          height: 75px !important;
+          width: calc(var(--mockup-w) * 0.185) !important;
+          height: calc(var(--mockup-w) * 0.081) !important;
         }
         .desktop-mockup-base {
-          width: 280px !important;
-          height: 9px !important;
+          width: calc(var(--mockup-w) * 0.304) !important;
+          height: max(4px, calc(var(--mockup-w) * 0.01)) !important;
+        }
+        .desktop-mockup-menubar {
+          font-size: calc(var(--mockup-w) * 0.011) !important;
+          padding: calc(var(--mockup-w) * 0.003) calc(var(--mockup-w) * 0.008) !important;
+          border-radius: calc(var(--mockup-w) * 0.005) !important;
+        }
+        .desktop-mockup-dock {
+          padding: calc(var(--mockup-w) * 0.005) calc(var(--mockup-w) * 0.01) !important;
+          border-radius: calc(var(--mockup-w) * 0.008) !important;
+          gap: calc(var(--mockup-w) * 0.008) !important;
+          margin-bottom: calc(var(--mockup-w) * 0.003) !important;
+        }
+        .desktop-mockup-dock-item {
+          width: calc(var(--mockup-w) * 0.02) !important;
+          height: calc(var(--mockup-w) * 0.02) !important;
+          border-radius: calc(var(--mockup-w) * 0.005) !important;
+        }
+        .desktop-mockup-icons {
+          gap: calc(var(--mockup-w) * 0.015) !important;
+          margin-top: calc(var(--mockup-w) * 0.015) !important;
+        }
+        .desktop-file-icon {
+          width: calc(var(--mockup-w) * 0.065) !important;
+        }
+        .desktop-mockup-icon {
+          width: calc(var(--mockup-w) * 0.026) !important;
+          height: calc(var(--mockup-w) * 0.026) !important;
+          border-radius: calc(var(--mockup-w) * 0.006) !important;
+        }
+        .desktop-mockup-screen {
+          z-index: 5 !important;
         }
         .phone-mockup {
-          width: 330px !important;
-          height: 660px !important;
-          border-width: 14px !important;
-          border-radius: 44px !important;
+          --phone-h: min(68vh, 700px);
+          --phone-w: min(85vw, calc(var(--phone-h) * 0.5));
+          --phone-h-final: calc(var(--phone-w) * 2);
+
+          position: relative !important;
+          overflow: hidden !important;
+          width: var(--phone-w) !important;
+          height: var(--phone-h-final) !important;
+          border: solid #1f2937 !important;
+          border-width: calc(var(--phone-w) * 0.042) !important;
+          border-radius: calc(var(--phone-w) * 0.133) !important;
+          box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), var(--neon-purple-shadow) !important;
         }
         .phone-mockup::before {
-          width: 74px !important;
-          height: 22px !important;
-          border-radius: 11px !important;
+          content: '' !important;
+          position: absolute !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          background-color: #1f2937 !important;
+          z-index: 10 !important;
+          width: calc(var(--phone-w) * 0.224) !important;
+          height: calc(var(--phone-w) * 0.067) !important;
+          border-radius: calc(var(--phone-w) * 0.033) !important;
+          top: calc(var(--phone-w) * 0.024) !important;
+        }
+        .phone-mockup-info {
+          padding: calc(var(--phone-w) * 0.1) calc(var(--phone-w) * 0.048) calc(var(--phone-w) * 0.06) calc(var(--phone-w) * 0.048) !important;
+          z-index: 5 !important;
+        }
+        .phone-status-bar {
+          font-size: calc(var(--phone-w) * 0.036) !important;
+          padding: 0 calc(var(--phone-w) * 0.03) !important;
+        }
+        .phone-status-bar svg {
+          width: calc(var(--phone-w) * 0.045) !important;
+          height: calc(var(--phone-w) * 0.036) !important;
+        }
+        .phone-mockup-time {
+          margin-top: calc(var(--phone-w) * 0.042) !important;
+        }
+        .phone-mockup-time h2 {
+          font-size: calc(var(--phone-w) * 0.15) !important;
+        }
+        .phone-mockup-time p {
+          font-size: calc(var(--phone-w) * 0.042) !important;
+          margin-top: calc(var(--phone-w) * 0.012) !important;
+        }
+        .phone-mockup-shortcut {
+          width: calc(var(--phone-w) * 0.115) !important;
+          height: calc(var(--phone-w) * 0.115) !important;
+        }
+        .phone-mockup-shortcut svg {
+          width: calc(var(--phone-w) * 0.048) !important;
+          height: calc(var(--phone-w) * 0.048) !important;
+        }
+        .phone-mockup-bar {
+          width: calc(var(--phone-w) * 0.3) !important;
+          height: calc(var(--phone-w) * 0.012) !important;
+          bottom: calc(var(--phone-w) * 0.024) !important;
+        }
+        .mockup-bg-blur {
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          background-size: cover !important;
+          background-position: center !important;
+          background-repeat: no-repeat !important;
+          filter: blur(24px) brightness(0.65) !important;
+          transform: scale(1.15) !important;
+          z-index: 1 !important;
+        }
+        .mockup-fg-image {
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          background-position: center !important;
+          background-repeat: no-repeat !important;
+          background-size: contain !important;
+          z-index: 2 !important;
         }
 
         .related-section {
@@ -648,7 +818,7 @@ export default function PreviewModal({
           cursor: pointer;
         }
         .preview-footer {
-          padding: 16px 24px;
+          padding: 10px 24px;
           border-top: 1px solid var(--glass-border);
           background: rgba(7, 7, 10, 0.4);
           display: flex;
@@ -763,21 +933,7 @@ export default function PreviewModal({
         }
 
         @media (max-width: 992px) {
-          .desktop-mockup {
-            width: 580px;
-            height: 335px;
-          }
-          .desktop-mockup-stand {
-            width: 110px;
-            height: 50px;
-          }
-          .desktop-mockup-base {
-            width: 180px;
-          }
-          .phone-mockup {
-            width: 270px;
-            height: 540px;
-          }
+          /* Responsive sizing handled natively by fluid CSS variables */
         }
 
         @media (max-width: 768px) {
@@ -788,36 +944,6 @@ export default function PreviewModal({
           .device-canvas {
             padding: 16px 10px;
             min-height: auto !important;
-          }
-          .desktop-mockup {
-            width: 480px;
-            height: 270px;
-            border-width: 8px;
-            border-bottom-width: 14px;
-          }
-          .desktop-mockup-stand {
-            width: 90px;
-            height: 45px;
-          }
-          .desktop-mockup-base {
-            width: 150px;
-            height: 5px;
-          }
-          .phone-mockup {
-            width: 240px;
-            height: 480px;
-            border-width: 8px;
-          }
-          .phone-mockup::before {
-            width: 60px;
-            height: 16px;
-            top: 6px;
-          }
-          .phone-mockup-info {
-            padding: 24px 12px 14px 12px;
-          }
-          .phone-mockup-time h2 {
-            font-size: 2.2rem;
           }
           .preview-footer {
             flex-direction: column;
@@ -871,43 +997,8 @@ export default function PreviewModal({
             min-height: auto !important;
             padding: 12px 6px;
           }
-          .desktop-mockup {
-            width: 280px;
-            height: 160px;
-            border-width: 6px;
-            border-bottom-width: 10px;
-          }
-          .desktop-mockup-stand {
-            width: 60px;
-            height: 25px;
-          }
-          .desktop-mockup-base {
-            width: 100px;
-            height: 4px;
-          }
           .desktop-mockup-dock {
             display: none;
-          }
-          .phone-mockup {
-            width: 200px;
-            height: 400px;
-            border-width: 8px;
-            border-radius: 28px;
-          }
-          .phone-mockup::before {
-            width: 50px;
-            height: 14px;
-            top: 5px;
-          }
-          .phone-mockup-info {
-            padding: 20px 10px 10px 10px;
-          }
-          .phone-mockup-time h2 {
-            font-size: 1.85rem;
-          }
-          .phone-mockup-shortcut {
-            width: 32px;
-            height: 32px;
           }
           .preview-footer {
             padding: 8px;

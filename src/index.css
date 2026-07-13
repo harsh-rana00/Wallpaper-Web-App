@@ -607,7 +607,8 @@ button:disabled,
   border: 12px solid #1f2937;
   position: relative;
   box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), var(--neon-purple-shadow);
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
   background-position: center;
   overflow: hidden;
 }
@@ -708,7 +709,8 @@ button:disabled,
   border-bottom-width: 20px;
   position: relative;
   box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), var(--neon-cyan-shadow);
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
   background-position: center;
   overflow: hidden;
 }
