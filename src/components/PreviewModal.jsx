@@ -2,6 +2,32 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { DownloadIcon, HeartIcon, MonitorIcon, SmartphoneIcon } from './Icons';
 import WallpaperCard from './WallpaperCard';
 
+const getResizedUrl = (url, resType, isPortrait) => {
+  if (!url) return '';
+  if (url.startsWith('/wallpapers/')) return url;
+  
+  let width, height;
+  if (resType === '1080p') {
+    width = isPortrait ? 1080 : 1920;
+    height = isPortrait ? 1920 : 1080;
+  } else if (resType === '2k') {
+    width = isPortrait ? 1440 : 2560;
+    height = isPortrait ? 2560 : 1440;
+  } else if (resType === '4k') {
+    width = isPortrait ? 2160 : 3840;
+    height = isPortrait ? 3840 : 2160;
+  } else {
+    return url;
+  }
+
+  if (url.includes('images.unsplash.com') || url.includes('images.pexels.com')) {
+    const baseUrl = url.split('?')[0];
+    return `${baseUrl}?auto=compress&cs=tinysrgb&fit=max&w=${width}&h=${height}`;
+  }
+
+  return url;
+};
+
 export default function PreviewModal({ 
   isOpen, 
   onClose, 
@@ -17,6 +43,7 @@ export default function PreviewModal({
   const [timeState, setTimeState] = useState({ time: '09:41', date: 'Tuesday, July 7' });
   const [selectedRes, setSelectedRes] = useState('1080p'); // default to 1080p resolution
   const [recommendationLimit, setRecommendationLimit] = useState(12);
+  const [imgSrc, setImgSrc] = useState('');
 
   // Reset scroll position and limit when active wallpaper changes
   useEffect(() => {
@@ -84,52 +111,42 @@ export default function PreviewModal({
     }
   }, [isOpen, wallpaper]);
 
-  if (!isOpen || !wallpaper) return null;
-
-  const getResizedUrl = (url, resType, isPortrait) => {
-    if (!url) return '';
-    if (url.startsWith('/wallpapers/')) return url;
-    
-    let width, height;
-    if (resType === '1080p') {
-      width = isPortrait ? 1080 : 1920;
-      height = isPortrait ? 1920 : 1080;
-    } else if (resType === '2k') {
-      width = isPortrait ? 1440 : 2560;
-      height = isPortrait ? 2560 : 1440;
-    } else if (resType === '4k') {
-      width = isPortrait ? 2160 : 3840;
-      height = isPortrait ? 3840 : 2160;
-    } else {
-      return url;
-    }
-
-    if (url.includes('images.unsplash.com') || url.includes('images.pexels.com')) {
-      const baseUrl = url.split('?')[0];
-      return `${baseUrl}?auto=compress&cs=tinysrgb&fit=crop&w=${width}&h=${height}`;
-    }
-
-    return url;
-  };
-
   const isPortrait = previewDevice === 'phone';
-  const isWallpaperPortrait = wallpaper.width < wallpaper.height;
+  const isWallpaperPortrait = wallpaper ? wallpaper.width < wallpaper.height : false;
 
   // 1. Download source resolution computation (matches selected device view crop)
-  const baseSrc = isPortrait 
-    ? (wallpaper.src.portrait || wallpaper.src.large2x || wallpaper.src.original)
-    : (wallpaper.src.landscape || wallpaper.src.original || wallpaper.src.large2x);
+  const baseSrc = wallpaper
+    ? (isPortrait 
+      ? (wallpaper.src.portrait || wallpaper.src.large2x || wallpaper.src.original)
+      : (wallpaper.src.landscape || wallpaper.src.original || wallpaper.src.large2x))
+    : '';
   const displaySrc = getResizedUrl(baseSrc, selectedRes, isPortrait);
-  const downloadUrl = wallpaper.src.original || displaySrc;
+  const downloadUrl = wallpaper ? (wallpaper.src.original || displaySrc) : '';
 
   // 2. Stable preview source (matches native wallpaper orientation to prevent reload flashing)
-  const previewBaseSrc = isWallpaperPortrait 
-    ? (wallpaper.src.portrait || wallpaper.src.original || wallpaper.src.large2x)
-    : (wallpaper.src.landscape || wallpaper.src.original || wallpaper.src.large2x);
+  const previewBaseSrc = wallpaper
+    ? (isWallpaperPortrait 
+      ? (wallpaper.src.portrait || wallpaper.src.original || wallpaper.src.large2x)
+      : (wallpaper.src.landscape || wallpaper.src.original || wallpaper.src.large2x))
+    : '';
   const previewSrc = getResizedUrl(previewBaseSrc, '1080p', isWallpaperPortrait);
-  const lowResUrl = wallpaper.src.medium || previewBaseSrc;
+  const lowResUrl = wallpaper ? (wallpaper.src.medium || previewBaseSrc) : '';
 
-  // 3. Mockup fit style is contain to prevent cropping (background blur handles margins)
+  // Progressive Image Loading
+  useEffect(() => {
+    if (!isOpen || !wallpaper) return;
+    setImgSrc(lowResUrl);
+    const img = new Image();
+    img.src = previewSrc;
+    img.onload = () => {
+      setImgSrc(previewSrc);
+    };
+  }, [previewSrc, lowResUrl, isOpen, wallpaper]);
+
+  const isOrientationMatched = (previewDevice === 'phone' && isWallpaperPortrait) || (previewDevice === 'desktop' && !isWallpaperPortrait);
+  const fgObjectFit = isOrientationMatched ? 'cover' : 'contain';
+
+  if (!isOpen || !wallpaper) return null;
 
   const handleDownload = () => {
     const isPortrait = previewDevice === 'phone';
@@ -218,17 +235,18 @@ export default function PreviewModal({
                 }}
               >
                 {/* Background Blur Layer */}
-                <div 
+                <img 
                   className="mockup-bg-blur"
-                  style={{ 
-                    backgroundImage: `url("${previewSrc}"), url("${lowResUrl}")`
-                  }}
+                  src={imgSrc || lowResUrl}
+                  alt=""
                 />
                 {/* Crisp Foreground Layer */}
-                <div 
+                <img 
                   className="mockup-fg-image"
+                  src={imgSrc || lowResUrl}
+                  alt="Phone Wallpaper Preview"
                   style={{ 
-                    backgroundImage: `url("${previewSrc}"), url("${lowResUrl}")`
+                    objectFit: fgObjectFit
                   }}
                 />
 
@@ -274,17 +292,18 @@ export default function PreviewModal({
                   }}
                 >
                   {/* Background Blur Layer */}
-                  <div 
+                  <img 
                     className="mockup-bg-blur"
-                    style={{ 
-                      backgroundImage: `url("${previewSrc}"), url("${lowResUrl}")`
-                    }}
+                    src={imgSrc || lowResUrl}
+                    alt=""
                   />
                   {/* Crisp Foreground Layer */}
-                  <div 
+                  <img 
                     className="mockup-fg-image"
+                    src={imgSrc || lowResUrl}
+                    alt="Desktop Wallpaper Preview"
                     style={{ 
-                      backgroundImage: `url("${previewSrc}"), url("${lowResUrl}")`
+                      objectFit: fgObjectFit
                     }}
                   />
 
@@ -536,16 +555,15 @@ export default function PreviewModal({
         .preview-modal-body::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.25);
         }
-
         .device-canvas {
           display: flex;
           align-items: center;
           justify-content: center;
           background: rgba(0, 0, 0, 0.25);
-          padding: 12px;
+          padding: 4px;
           min-height: 480px;
-          height: 70vh;
-          max-height: 780px;
+          height: 76vh;
+          max-height: 820px;
           box-sizing: border-box;
           position: relative;
           overflow: hidden;
@@ -556,8 +574,9 @@ export default function PreviewModal({
           align-items: center;
           justify-content: center;
           width: 100%;
-          --mockup-w: min(92vw, calc(min(54vh, 580px) * 1.74));
-          --mockup-h: calc(var(--mockup-w) / 1.74);
+          --mockup-h-limit: min(68vh, 640px);
+          --mockup-w: min(94vw, calc(var(--mockup-h-limit) * 1.778));
+          --mockup-h: calc(var(--mockup-w) / 1.778);
         }
         .desktop-mockup {
           position: relative !important;
@@ -610,9 +629,9 @@ export default function PreviewModal({
           z-index: 5 !important;
         }
         .phone-mockup {
-          --phone-h: min(68vh, 700px);
-          --phone-w: min(85vw, calc(var(--phone-h) * 0.5));
-          --phone-h-final: calc(var(--phone-w) * 2);
+          --phone-h-limit: min(72vh, 720px);
+          --phone-w: min(90vw, calc(var(--phone-h-limit) * 0.48));
+          --phone-h-final: calc(var(--phone-w) / 0.48);
 
           position: relative !important;
           overflow: hidden !important;
@@ -676,12 +695,11 @@ export default function PreviewModal({
           left: 0 !important;
           width: 100% !important;
           height: 100% !important;
-          background-size: cover !important;
-          background-position: center !important;
-          background-repeat: no-repeat !important;
+          object-fit: cover !important;
           filter: blur(24px) brightness(0.65) !important;
           transform: scale(1.15) !important;
           z-index: 1 !important;
+          pointer-events: none;
         }
         .mockup-fg-image {
           position: absolute !important;
@@ -689,10 +707,8 @@ export default function PreviewModal({
           left: 0 !important;
           width: 100% !important;
           height: 100% !important;
-          background-position: center !important;
-          background-repeat: no-repeat !important;
-          background-size: contain !important;
           z-index: 2 !important;
+          pointer-events: none;
         }
 
         .related-section {
